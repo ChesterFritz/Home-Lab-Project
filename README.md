@@ -8,7 +8,7 @@ explore networking concepts, and document my progress in systems and infrastruct
 ## Hardware
 
 | Component | Details |
-|-----------|---------|
+|-----------|-----  ----|
 | Board | Orange Pi One H3 |
 | RAM | 1GB |
 | OS | Ubuntu 20.04 LTS (Focal Fossa) |
@@ -38,7 +38,7 @@ explore networking concepts, and document my progress in systems and infrastruct
 - [x] AdGuard Home — network-wide ad/tracker blocking
 - [x] Tailscale — VPN exit node with DNS filtering on mobile
 - [ ] Docker — container orchestration
-- [ ] Dashboard (Homarr/Homer) — unified service overview
+- [ ] Self-hosted dashboard
 - [ ] Vaultwarden — self-hosted password manager
 
 ---
