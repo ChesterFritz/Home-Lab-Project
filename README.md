@@ -13,6 +13,7 @@ explore networking concepts, and document my progress in systems and infrastruct
 | OS | Ubuntu 20.04 LTS (Focal Fossa) |
 | Storage | MicroSD (SanDisk High Endurance) |
 
+📖 [Orange Pi Initial Setup Guide](docs/orange-pi-setup.md)
 
 ## Current Stack
 
