@@ -8,7 +8,7 @@ explore networking concepts, and document my progress in systems and infrastruct
 ## Hardware
 
 | Component | Details |
-|-----------|-----  ----|
+|-----------|---------|
 | Board | Orange Pi One H3 |
 | RAM | 1GB |
 | OS | Ubuntu 20.04 LTS (Focal Fossa) |
@@ -18,11 +18,11 @@ explore networking concepts, and document my progress in systems and infrastruct
 
 ## Current Stack
 
-| Service | Purpose | Status |
-|---------|---------|--------|
-| AdGuard Home | Network-wide DNS filtering (~83% block rate) | ✅ Running |
-| Tailscale | VPN exit node — extends DNS filtering to mobile | ✅ Running |
-| Docker | Container runtime for future services | 🔧 In Progress |
+| Service | Purpose | Status | Docs |
+|---------|---------|--------|------|
+| AdGuard Home | Network-wide DNS filtering (~83% block rate) | ✅ Running | [Setup Guide](configs/adguard/README.md) |
+| Tailscale | VPN exit node — extends DNS filtering to mobile | ✅ Running | [Setup Guide](configs/tailscale/README.md) |
+| Docker | Container runtime for future services | 🔧 In Progress | — |
 
 ---
 
@@ -43,16 +43,16 @@ explore networking concepts, and document my progress in systems and infrastruct
 
 ---
 
-## Goals
-
-- Build hands-on experience with Linux, networking, and self-hosted infrastructure
-- Document configurations and lessons learned for future reference
-- Progressively expand services as hardware allows
-
----
-
 ## Current Plan
 
 AdGuard Home and Tailscale are currently running as native installs directly on the
 host. The next step is migrating both services into Docker containers for easier
 management and portability.
+
+---
+
+## Goals
+
+- Build hands-on experience with Linux, networking, and self-hosted infrastructure
+- Document configurations and lessons learned for future reference
+- Progressively expand services as hardware allows
