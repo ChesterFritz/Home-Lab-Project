@@ -1,4 +1,4 @@
-# AdGuard Home — Setup Guide
+# 🛡️ AdGuard Home — Setup Guide
 
 Step-by-step instructions to replicate this AdGuard Home setup on a new machine.
 
@@ -6,9 +6,11 @@ Step-by-step instructions to replicate this AdGuard Home setup on a new machine.
 
 ## Prerequisites
 
-- Linux-based SBC or server (tested on Orange Pi One H3, Ubuntu 20.04)
-- Root or sudo access
-- Port 53 and 80 available
+| Requirement | Details |
+|-------------|---------|
+| Hardware | Linux-based SBC or server (tested on Orange Pi One H3, Ubuntu 20.04) |
+| Access | Root or sudo |
+| Ports | 53 (DNS) and 80 (Web UI) must be available |
 
 ---
 
@@ -63,10 +65,10 @@ sudo systemctl start AdGuardHome
 
 ---
 
-## 5. Add Blocklists
+## 5. Blocklists
 
-The following blocklists are used in this setup. These are already in the config
-file but can be added manually via **Filters → DNS Blocklists → Add blocklist**:
+The following blocklists are used in this setup. These are already included in the
+config file but can be added manually via **Filters → DNS Blocklists → Add blocklist**:
 
 | Name | URL |
 |------|-----|
@@ -79,14 +81,14 @@ file but can be added manually via **Filters → DNS Blocklists → Add blocklis
 
 ## 6. Point Your Devices to AdGuard
 
-Set your router's DNS server to your device's local IP, or configure per-device:
-
-- **Router-level:** Change DNS in your router settings to `YOUR_DEVICE_IP`
-- **Per-device:** Manually set DNS to `YOUR_DEVICE_IP` in network settings
+| Method | How |
+|--------|-----|
+| Router-level | Change DNS in your router settings to `YOUR_DEVICE_IP` |
+| Per-device | Manually set DNS to `YOUR_DEVICE_IP` in network settings |
 
 ---
 
-## Verify It's Working
+## ✅ Verify It's Working
 
 ```bash
 # Check AdGuard is running
@@ -97,3 +99,11 @@ nslookup google.com YOUR_DEVICE_IP
 ```
 
 Access the dashboard at `http://YOUR_DEVICE_IP`
+
+---
+
+## ⏭️ Next Steps
+
+| Guide | Description |
+|-------|-------------|
+| [Tailscale Setup](../tailscale/README.md) | VPN exit node setup |

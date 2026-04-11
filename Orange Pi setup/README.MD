@@ -1,7 +1,8 @@
-# Orange Pi One H3 — Initial Setup Guide
+# 🍊 Orange Pi One H3 — Initial Setup Guide
 
 Step-by-step instructions from selecting an OS to establishing first SSH contact.
 
+---
 
 ## 1. Choose an Operating System
 
@@ -12,8 +13,7 @@ Two main options for the Orange Pi One H3:
 | [Orange Pi OS](http://www.orangepi.org/html/hardWare/computerAndMicrocontrollers/service-and-support/Orange-Pi-PC.html) | Official OS from Orange Pi | Beginners, straightforward setup |
 | [Armbian](https://www.armbian.com) | Community-driven, more lightweight | Advanced users, better long-term support |
 
-> This guide uses the **official Orange Pi Ubuntu image**. Steps may vary slightly
-> for Armbian.
+> This guide uses the **official Orange Pi Ubuntu image**. Steps may vary slightly for Armbian.
 
 ### Desktop vs Server
 
@@ -28,6 +28,7 @@ When downloading the official OS you will be given two options:
 > unnecessary GUI overhead, and is managed entirely over SSH — ideal for a
 > 1GB RAM board like the Orange Pi One H3.
 
+---
 
 ## 2. Flash the SD Card
 
@@ -45,6 +46,7 @@ When downloading the official OS you will be given two options:
 > **Note:** Use a high endurance SD card. Standard cards degrade quickly under
 > the constant read/write load of a server workload.
 
+---
 
 ## 3. First Boot
 
@@ -54,6 +56,7 @@ When downloading the official OS you will be given two options:
 
 The Orange Pi will boot automatically — no monitor needed.
 
+---
 
 ## 4. Find the IP Address
 
@@ -65,6 +68,7 @@ The Orange Pi will boot automatically — no monitor needed.
 > **Tip:** Note the MAC address and set a DHCP reservation in your router so the
 > Orange Pi always gets the same IP. This is important for DNS and SSH stability.
 
+---
 
 ## 5. First SSH Connection
 
@@ -81,6 +85,7 @@ Default credentials for the official Orange Pi OS:
 | Username | `root` |
 | Password | `orangepi` |
 
+---
 
 ## 6. Change the Default Password
 
@@ -95,6 +100,7 @@ Enter your current password (`orangepi`), then set a new strong password.
 
 > **Security note:** Never leave the default password on any networked device.
 
+---
 
 ## 7. Update the System
 
@@ -110,8 +116,11 @@ sudo reboot
 
 After reboot, SSH back in and your Orange Pi is ready for use.
 
+---
 
-## Next Steps
+## ⏭️ Next Steps
 
-- [AdGuard Home Setup](../configs/adguard/README.md)
-- [Tailscale Setup](../configs/tailscale/README.md)
+| Guide | Description |
+|-------|-------------|
+| [AdGuard Home Setup](../configs/adguard/README.md) | Network-wide DNS filtering |
+| [Tailscale Setup](../configs/tailscale/README.md) | VPN exit node setup |
