@@ -1,6 +1,6 @@
-# 🍊 Orange Pi One H3 — Initial Setup Guide
+# 🍊 Orange Pi PC H3 — Initial Setup Guide
 Step-by-step instructions from selecting an OS to establishing first SSH contact.
-> **Note:** This setup previously used the official Orange Pi Ubuntu image, which is now EOL. This guide has been updated to use **Armbian** instead.
+> **Note:** This setup previously used the official Orange Pi Ubuntu image, which is now EOL. This guide has been updated to use **Armbian** instead. The switch was driven primarily by **Docker support** — Armbian provides a maintained kernel and proper cgroup configuration that makes running Docker reliable on the H3.
 ---
 ## 1. Choose an Operating System
 This setup uses **Armbian** — a community-driven, lightweight OS with better long-term support than the official Orange Pi OS (which is now end-of-life).
@@ -13,13 +13,13 @@ This setup uses **Armbian** — a community-driven, lightweight OS with better l
 | Kernel | `6.18.21` (current branch) |
 | Variant | Minimal (no GUI) |
 Download Armbian images from the [Armbian download page](https://www.armbian.com/orange-pi-pc/).
-> **Why Armbian?** The official Orange Pi OS is no longer maintained. Armbian offers active development, a large community, and better hardware support for the H3 chip long-term.
+> **Why Armbian?** The official Orange Pi OS is no longer maintained and lacks reliable Docker support. Armbian offers active development, a large community, proper cgroup v2 support for Docker, and better hardware support for the H3 chip long-term.
 ### Desktop vs Minimal
 | Version | Description | Use Case |
 |---------|-------------|----------|
 | Desktop | Includes a full GUI | If you need a monitor and mouse |
 | Minimal | Headless, CLI only | ✅ Recommended for home lab use |
-> This guide uses the **Minimal variant**. It is lighter on resources, has no unnecessary GUI overhead, and is managed entirely over SSH — ideal for a 1GB RAM board like the Orange Pi One H3.
+> This guide uses the **Minimal variant**. It is lighter on resources, has no unnecessary GUI overhead, and is managed entirely over SSH — ideal for a 1GB RAM board like the Orange Pi PC H3.
 ---
 ## 2. Flash the SD Card
 **What you need:**
@@ -60,15 +60,9 @@ Default credentials for Armbian:
 Unlike the official Orange Pi OS, **Armbian will walk you through initial configuration on first login.** You cannot skip this.
 ### Step 1 — Change the root password
 You will be prompted immediately:
-New password:
-Retype new password:
 Set a strong password and remember it.
 ### Step 2 — Create a non-root user
 Armbian will then ask you to create a regular user account:
-Set a strong password and remember it.
-### Step 2 — Create a non-root user
-Armbian will then ask you to create a regular user account:
-Please provide a username:
 Enter a username (e.g. `pi` or your own name), then set a password for this user.
 > **Why a non-root user?** It is best practice to do day-to-day work as a non-root user and only escalate with `sudo` when needed. Armbian enforces this by prompting you to create one on first boot.
 After this the setup wizard completes and you will be dropped into a shell.
@@ -87,8 +81,63 @@ ssh YOUR_USERNAME@YOUR_ORANGE_PI_IP
 ```
 Your Orange Pi is now ready for use.
 ---
+## 📚 Lessons Learned
+
+### Docker vs Native Installs
+
+This setup runs **AdGuard Home in Docker** and **Tailscale natively**. That split was intentional — here is why and what was learned from it.
+
+#### Port 53 Conflict — Same Fix Either Way
+`systemd-resolved` binds to port 53 by default on Debian Trixie. This blocks any service that needs DNS — whether it is running in Docker or installed natively. The fix is always the same:
+
+```bash
+sudo systemctl stop systemd-resolved
+sudo systemctl disable systemd-resolved
+sudo rm /etc/resolv.conf
+echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf
+```
+
+> Running in Docker does not bypass this conflict. The container will get stuck in `Created` state with no error logs if this step is skipped.
+
+#### Why AdGuard Home is in Docker
+| Reason | Details |
+|--------|---------|
+| Easier recovery | After an OS reflash, `docker run` restores AdGuard in one command |
+| Cleaner backups | Config lives in `/opt/adguardhome/conf` — one directory to back up |
+| Simpler updates | `docker pull adguard/adguardhome` updates the service with no reinstall |
+| Isolation | Container failure does not affect the host OS |
+
+#### Why Tailscale is Native (Not Docker)
+| Reason | Details |
+|--------|---------|
+| Exit node requires host networking | Tailscale needs full access to the host network stack to route traffic |
+| IP forwarding is simpler on host | `sysctl` changes apply directly without Docker network workarounds |
+| Official install script handles everything | One command installs, registers, and starts the service |
+| Less complexity | No need to pass `/dev/net/tun` or extra Docker flags for VPN functionality |
+
+#### armhf Image Compatibility
+The Orange Pi PC H3 is a 32-bit ARMv7 board (`armhf`). Not every Docker Hub image publishes a `linux/arm/v7` build. Before planning any containerized service on this hardware, always verify the image supports armhf. Images that only publish `amd64` and `arm64` will fail with `exec format error`.
+
+```bash
+# Always verify architecture when pulling
+docker pull --platform linux/arm/v7 imagename:tag
+```
+
+#### Diagnosing Containers That Won't Start
+`docker ps` only shows running containers. A container stuck in `Created` state will not appear unless you use:
+
+```bash
+docker ps -a
+```
+
+This was the key command for diagnosing the AdGuard Home port conflict during initial setup.
+
+---
+
 ## ⏭️ Next Steps
+
 | Guide | Description |
 |-------|-------------|
-| [AdGuard Home Setup](../configs/adguard/README.md) | Network-wide DNS filtering |
-| [Tailscale Setup](../configs/tailscale/README.md) | VPN exit node setup |
+| [Docker Setup](../docker/README.md) | Install Docker CE on Armbian Trixie |
+| [AdGuard Home Docker Setup](../adguard-docker/README.md) | Network-wide DNS filtering via Docker |
+| [Tailscale Setup](../tailscale-armbian/README.md) | VPN exit node setup on Armbian |
