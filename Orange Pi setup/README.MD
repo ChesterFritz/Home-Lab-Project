@@ -1,125 +1,93 @@
 # 🍊 Orange Pi One H3 — Initial Setup Guide
-
 Step-by-step instructions from selecting an OS to establishing first SSH contact.
-
+> **Note:** This setup previously used the official Orange Pi Ubuntu image, which is now EOL. This guide has been updated to use **Armbian** instead.
 ---
-
 ## 1. Choose an Operating System
-
-Two main options for the Orange Pi One H3:
-
-| OS | Description | Recommended For |
-|----|-------------|-----------------|
-| [Orange Pi OS](http://www.orangepi.org/html/hardWare/computerAndMicrocontrollers/service-and-support/Orange-Pi-PC.html) | Official OS from Orange Pi | Beginners, straightforward setup |
-| [Armbian](https://www.armbian.com) | Community-driven, more lightweight | Advanced users, better long-term support |
-
-> This guide uses the **official Orange Pi Ubuntu image**. Steps may vary slightly for Armbian.
-
-### Desktop vs Server
-
-When downloading the official OS you will be given two options:
-
+This setup uses **Armbian** — a community-driven, lightweight OS with better long-term support than the official Orange Pi OS (which is now end-of-life).
+**Image used:** `Armbian_community_26.2.0-trunk.703_Orangepipc_trixie_current_6.18.21_minimal.img`
+| Detail | Value |
+|--------|-------|
+| Build | Armbian Community `26.2.0-trunk.703` |
+| Board | Orange Pi PC (`Orangepipc`) |
+| Base OS | Debian Trixie |
+| Kernel | `6.18.21` (current branch) |
+| Variant | Minimal (no GUI) |
+Download Armbian images from the [Armbian download page](https://www.armbian.com/orange-pi-pc/).
+> **Why Armbian?** The official Orange Pi OS is no longer maintained. Armbian offers active development, a large community, and better hardware support for the H3 chip long-term.
+### Desktop vs Minimal
 | Version | Description | Use Case |
 |---------|-------------|----------|
 | Desktop | Includes a full GUI | If you need a monitor and mouse |
-| Server | Headless, CLI only | ✅ Recommended for home lab use |
-
-> This guide uses the **Server version**. It is lighter on resources, has no
-> unnecessary GUI overhead, and is managed entirely over SSH — ideal for a
-> 1GB RAM board like the Orange Pi One H3.
-
+| Minimal | Headless, CLI only | ✅ Recommended for home lab use |
+> This guide uses the **Minimal variant**. It is lighter on resources, has no unnecessary GUI overhead, and is managed entirely over SSH — ideal for a 1GB RAM board like the Orange Pi One H3.
 ---
-
 ## 2. Flash the SD Card
-
 **What you need:**
 - MicroSD card (recommended: SanDisk High Endurance 64GB)
 - [Balena Etcher](https://etcher.balena.io) or the official Armbian Flasher
-
 **Steps:**
-1. Download the OS image from the Orange Pi website
+1. Download the Armbian image from the Armbian website
 2. Open Balena Etcher
-3. Select the downloaded image
+3. Select the downloaded `.img` file
 4. Select your SD card as the target
 5. Click **Flash** and wait for it to complete
-
-> **Note:** Use a high endurance SD card. Standard cards degrade quickly under
-> the constant read/write load of a server workload.
-
+> **Note:** Use a high endurance SD card. Standard cards degrade quickly under the constant read/write load of a server workload.
 ---
-
 ## 3. First Boot
-
 1. Insert the flashed SD card into the Orange Pi
 2. Connect an ethernet cable from the Orange Pi to your router
 3. Plug in the power supply
-
 The Orange Pi will boot automatically — no monitor needed.
-
 ---
-
 ## 4. Find the IP Address
-
-1. Open a browser and go to your router admin page (`192.168.x.x` — check the
-   label on your router for the exact address)
+1. Open a browser and go to your router admin page (`192.168.x.x` — check the label on your router for the exact address)
 2. Log in and navigate to the connected devices or DHCP client list
 3. Look for a device named `orangepipc` — note the IP and MAC address
-
-> **Tip:** Note the MAC address and set a DHCP reservation in your router so the
-> Orange Pi always gets the same IP. This is important for DNS and SSH stability.
-
+> **Tip:** Note the MAC address and set a DHCP reservation in your router so the Orange Pi always gets the same IP. This is important for DNS and SSH stability.
 ---
-
 ## 5. First SSH Connection
-
 From your Mac or any machine on the same network:
-
 ```bash
 ssh root@YOUR_ORANGE_PI_IP
 ```
-
-Default credentials for the official Orange Pi OS:
-
+Default credentials for Armbian:
 | Field | Value |
 |-------|-------|
 | Username | `root` |
-| Password | `orangepi` |
-
+| Password | `1234` |
 ---
-
-## 6. Change the Default Password
-
-The official OS does not prompt you to change the password on first login — do it
-manually immediately:
-
-```bash
-passwd
-```
-
-Enter your current password (`orangepi`), then set a new strong password.
-
-> **Security note:** Never leave the default password on any networked device.
-
+## 6. First Login — Armbian Setup Wizard
+Unlike the official Orange Pi OS, **Armbian will walk you through initial configuration on first login.** You cannot skip this.
+### Step 1 — Change the root password
+You will be prompted immediately:
+New password:
+Retype new password:
+Set a strong password and remember it.
+### Step 2 — Create a non-root user
+Armbian will then ask you to create a regular user account:
+Set a strong password and remember it.
+### Step 2 — Create a non-root user
+Armbian will then ask you to create a regular user account:
+Please provide a username:
+Enter a username (e.g. `pi` or your own name), then set a password for this user.
+> **Why a non-root user?** It is best practice to do day-to-day work as a non-root user and only escalate with `sudo` when needed. Armbian enforces this by prompting you to create one on first boot.
+After this the setup wizard completes and you will be dropped into a shell.
 ---
-
 ## 7. Update the System
-
 ```bash
 sudo apt update && sudo apt upgrade -y
 ```
-
 This may take a few minutes on first run. Reboot after upgrading:
-
 ```bash
 sudo reboot
 ```
-
-After reboot, SSH back in and your Orange Pi is ready for use.
-
+After reboot, SSH back in with your non-root user:
+```bash
+ssh YOUR_USERNAME@YOUR_ORANGE_PI_IP
+```
+Your Orange Pi is now ready for use.
 ---
-
 ## ⏭️ Next Steps
-
 | Guide | Description |
 |-------|-------------|
 | [AdGuard Home Setup](../configs/adguard/README.md) | Network-wide DNS filtering |
