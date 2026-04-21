@@ -136,7 +136,28 @@ docker info        # system-wide Docker info
 
 ---
 
-## ⏭️ Next Steps
+## 📚 Lessons Learned
+
+### Why Docker Matters — The "It Works on My Machine" Problem
+
+Before this setup, services like AdGuard Home were installed directly on the host OS. This works, but it ties the service tightly to that specific machine, OS version, and configuration. If the OS gets reflashed, corrupted, or upgraded, the service has to be reinstalled and reconfigured from scratch.
+
+Docker solves this by packaging a service and everything it needs — binaries, dependencies, config — into a container that runs the same way regardless of what machine it is on. The same `docker run` command that deployed AdGuard Home on this Orange Pi would deploy the exact same setup on a Raspberry Pi, a cloud VPS, or a Dell OptiPlex without any changes.
+
+This is the core value of containerization — eliminating environment-specific failures. A container does not care what OS version the host is running or what other software is installed. It brings its own environment with it.
+
+| Without Docker | With Docker |
+|----------------|-------------|
+| Reinstall and reconfigure after every OS reflash | `docker run` restores the service in one command |
+| Dependencies tied to host OS version | Dependencies packaged inside the container |
+| Works on this machine, breaks on another | Runs the same everywhere |
+| Manual backup of scattered config files | Config persisted in a single volume directory |
+
+This became immediately practical during this setup — after reflashing the Orange Pi from Ubuntu 20.04 to Armbian Debian Trixie, AdGuard Home was back up and running with the full config restored in minutes rather than starting from scratch.
+
+---
+
+
 
 | Guide | Description |
 |-------|-------------|
