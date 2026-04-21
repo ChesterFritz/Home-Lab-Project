@@ -1,4 +1,4 @@
-# 🍊 Orange Pi PC H3 — Initial Setup Guide
+# 🍊 Orange Pi One H3 — Initial Setup Guide
 Step-by-step instructions from selecting an OS to establishing first SSH contact.
 > **Note:** This setup previously used the official Orange Pi Ubuntu image, which is now EOL. This guide has been updated to use **Armbian** instead. The switch was driven primarily by **Docker support** — Armbian provides a maintained kernel and proper cgroup configuration that makes running Docker reliable on the H3.
 ---
@@ -19,7 +19,7 @@ Download Armbian images from the [Armbian download page](https://www.armbian.com
 |---------|-------------|----------|
 | Desktop | Includes a full GUI | If you need a monitor and mouse |
 | Minimal | Headless, CLI only | ✅ Recommended for home lab use |
-> This guide uses the **Minimal variant**. It is lighter on resources, has no unnecessary GUI overhead, and is managed entirely over SSH — ideal for a 1GB RAM board like the Orange Pi PC H3.
+> This guide uses the **Minimal variant**. It is lighter on resources, has no unnecessary GUI overhead, and is managed entirely over SSH — ideal for a 1GB RAM board like the Orange Pi One H3.
 ---
 ## 2. Flash the SD Card
 **What you need:**
@@ -81,63 +81,8 @@ ssh YOUR_USERNAME@YOUR_ORANGE_PI_IP
 ```
 Your Orange Pi is now ready for use.
 ---
-## 📚 Lessons Learned
-
-### Docker vs Native Installs
-
-This setup runs **AdGuard Home in Docker** and **Tailscale natively**. That split was intentional — here is why and what was learned from it.
-
-#### Port 53 Conflict — Same Fix Either Way
-`systemd-resolved` binds to port 53 by default on Debian Trixie. This blocks any service that needs DNS — whether it is running in Docker or installed natively. The fix is always the same:
-
-```bash
-sudo systemctl stop systemd-resolved
-sudo systemctl disable systemd-resolved
-sudo rm /etc/resolv.conf
-echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf
-```
-
-> Running in Docker does not bypass this conflict. The container will get stuck in `Created` state with no error logs if this step is skipped.
-
-#### Why AdGuard Home is in Docker
-| Reason | Details |
-|--------|---------|
-| Easier recovery | After an OS reflash, `docker run` restores AdGuard in one command |
-| Cleaner backups | Config lives in `/opt/adguardhome/conf` — one directory to back up |
-| Simpler updates | `docker pull adguard/adguardhome` updates the service with no reinstall |
-| Isolation | Container failure does not affect the host OS |
-
-#### Why Tailscale is Native (Not Docker)
-| Reason | Details |
-|--------|---------|
-| Exit node requires host networking | Tailscale needs full access to the host network stack to route traffic |
-| IP forwarding is simpler on host | `sysctl` changes apply directly without Docker network workarounds |
-| Official install script handles everything | One command installs, registers, and starts the service |
-| Less complexity | No need to pass `/dev/net/tun` or extra Docker flags for VPN functionality |
-
-#### armhf Image Compatibility
-The Orange Pi PC H3 is a 32-bit ARMv7 board (`armhf`). Not every Docker Hub image publishes a `linux/arm/v7` build. Before planning any containerized service on this hardware, always verify the image supports armhf. Images that only publish `amd64` and `arm64` will fail with `exec format error`.
-
-```bash
-# Always verify architecture when pulling
-docker pull --platform linux/arm/v7 imagename:tag
-```
-
-#### Diagnosing Containers That Won't Start
-`docker ps` only shows running containers. A container stuck in `Created` state will not appear unless you use:
-
-```bash
-docker ps -a
-```
-
-This was the key command for diagnosing the AdGuard Home port conflict during initial setup.
-
----
-
 ## ⏭️ Next Steps
-
 | Guide | Description |
 |-------|-------------|
-| [Docker Setup](../docker/README.md) | Install Docker CE on Armbian Trixie |
-| [AdGuard Home Docker Setup](../adguard-docker/README.md) | Network-wide DNS filtering via Docker |
-| [Tailscale Setup](../tailscale-armbian/README.md) | VPN exit node setup on Armbian |
+| [AdGuard Home Setup](../configs/adguard/README.md) | Network-wide DNS filtering |
+| [Tailscale Setup](../configs/tailscale/README.md) | VPN exit node setup |
