@@ -136,4 +136,4 @@ Access the dashboard at `http://YOUR_DEVICE_IP`
 
 | Guide | Description |
 |-------|-------------|
-| [Tailscale Setup](../tailscale-armbian/README.md) | VPN exit node setup on Armbian |
+| [Tailscale Setup](../tailscale/README.md) | VPN exit node setup on Armbian |

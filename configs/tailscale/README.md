@@ -24,7 +24,7 @@ to devices outside the house.
 | Hardware | Linux-based SBC or server (tested on Orange Pi PC H3, Armbian Debian Trixie) |
 | Access | Root or sudo |
 | Account | Free Tailscale account at [tailscale.com](https://tailscale.com) |
-| DNS | AdGuard Home installed and running — see [AdGuard Docker Setup Guide](../adguard-docker/README.md) |
+| DNS | AdGuard Home installed and running — see [AdGuard Docker Setup Guide](../adguard/README.md) |
 
 ---
 
@@ -127,4 +127,4 @@ The Tailscale IP is visible in the admin panel and via `tailscale ip` on the dev
 
 | Guide | Description |
 |-------|-------------|
-| [AdGuard Docker Setup](../adguard-docker/README.md) | Network-wide DNS filtering via Docker |
+| [AdGuard Docker Setup](../adguard/README.md) | Network-wide DNS filtering via Docker |

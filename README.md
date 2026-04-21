@@ -15,9 +15,9 @@ explore networking concepts, and document my progress in systems and infrastruct
 ## 🧰 Current Stack
 | Service | Purpose | Status | Docs |
 |---------|---------|--------|------|
-| Docker | Container runtime | ✅ Running | [Setup Guide](configs/docker/README.md) |
-| AdGuard Home | Network-wide DNS filtering (~83% block rate) | ✅ Running (Docker) | [Setup Guide](configs/adguard-docker/README.md) |
-| Tailscale | VPN exit node — extends DNS filtering to mobile | ✅ Running | [Setup Guide](configs/tailscale-armbian/README.md) |
+| Docker | Container runtime | ✅ Running | — |
+| AdGuard Home | Network-wide DNS filtering (~83% block rate) | ✅ Running (Docker) | [Setup Guide](configs/adguard/README.md) |
+| Tailscale | VPN exit node — extends DNS filtering to mobile | ✅ Running | [Setup Guide](configs/tailscale/README.md) |
 ---
 ## 🌐 Network
 | Layer | Details |
