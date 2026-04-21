@@ -50,7 +50,7 @@ reflashes and cleaner config backups.
 - Build hands-on experience with Linux, networking, and self-hosted infrastructure
 - Document configurations and lessons learned for future reference
 - Progressively expand services as hardware allows
-- Build a foundation relevant to GRC and cybersecurity work (NIST, ISO 27001, IEC 62443)
+
 ---
 ## 📝 A Note on Documentation
 Configuration guides and documentation in this repo were written with the assistance
