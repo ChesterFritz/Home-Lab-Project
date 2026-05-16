@@ -19,8 +19,11 @@ explore networking concepts, and document my progress in systems and infrastruct
 | Docker | Container runtime | ✅ Running | [Setup Guide](configs/docker/README.md) |
 | AdGuard Home | Network-wide DNS filtering (~83% block rate) | ✅ Running (Docker) | [Setup Guide](configs/adguard/README.md) |
 | Tailscale | VPN exit node — extends DNS filtering to mobile | ✅ Running | [Setup Guide](configs/tailscale/README.md) |
-| Uptime Kuma | Service and container health monitoring | ✅ Running (Docker) | [Setup Guide](configs/uptime-kuma/README.md) |
+| Uptime Kuma | Service and container health monitoring | ✅ Running (Docker) | [Setup Guide](configs/UpTimeKuma/README.md) |
 
+## 📊 Status
+
+![Chester's Homelab Status](image-1.png)
 ---
 ## 🌐 Network
 | Layer | Details |
