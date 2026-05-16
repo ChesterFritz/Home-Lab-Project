@@ -19,6 +19,7 @@ explore networking concepts, and document my progress in systems and infrastruct
 | Docker | Container runtime | ✅ Running | [Setup Guide](configs/docker/README.md) |
 | AdGuard Home | Network-wide DNS filtering (~83% block rate) | ✅ Running (Docker) | [Setup Guide](configs/adguard/README.md) |
 | Tailscale | VPN exit node — extends DNS filtering to mobile | ✅ Running | [Setup Guide](configs/tailscale/README.md) |
+| Uptime Kuma | Service and container health monitoring | ✅ Running (Docker) | [Setup Guide](configs/uptime-kuma/README.md) |
 
 ---
 ## 🌐 Network
@@ -37,6 +38,7 @@ explore networking concepts, and document my progress in systems and infrastruct
 | ✅ | Docker — container runtime |
 | ✅ | Migrate AdGuard Home to Docker |
 | ✅ | DNS-over-HTTPS (DoH) upstream configuration |
+| ✅ | Uptime Kuma — service and container monitoring |
 | ⏳ | UFW firewall |
 | ⏳ | CrowdSec — intrusion detection |
 | ⏳ | Nginx reverse proxy — clean local URLs |
@@ -54,6 +56,10 @@ reflashes and cleaner config backups.
 
 AdGuard Home is configured with DNS-over-HTTPS upstreams (Cloudflare, Quad9, Google),
 meaning DNS queries leaving the Orange Pi are encrypted and not visible to the ISP.
+
+Uptime Kuma runs in Docker and monitors all services and containers via the Docker
+socket — covering AdGuard Home (HTTP and container health), Tailscale (ping),
+Orange Pi (ping), DNS (ping), and Speedtest Tracker (container health).
 
 ---
 ## 📅 Project Timeline
@@ -85,7 +91,13 @@ meaning DNS queries leaving the Orange Pi are encrypted and not visible to the I
 - Verified DNS routing on all devices
 - Identified and assessed CVE-2026-31431 exposure
 
-### Phase 6 — Planned
+### Phase 6 — Monitoring
+TTried the usual recommendations - Grafana, Netdata, Prometheus — but they're either too heavy for a 1GB board or just overkill for what I actually need. Uptime Kuma made more sense, lightweight and gets the job done. I'll add a notification bot in the future if the need arises, but for now this is good enough.
+- Deployed Uptime Kuma in Docker
+- Mounted Docker socket for container health monitoring
+- Monitors: AdGuard Home (HTTP + Docker), Tailscale (ping), Orange Pi (ping), DNS Primary (ping), Speedtest Tracker (Docker)
+
+### Phase 7 — Planneds
 - UFW firewall
 - CrowdSec intrusion detection
 - Nginx reverse proxy
