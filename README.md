@@ -20,10 +20,12 @@ explore networking concepts, and document my progress in systems and infrastruct
 | AdGuard Home | Network-wide DNS filtering (~83% block rate) | ✅ Running (Docker) | [Setup Guide](configs/adguard/README.md) |
 | Tailscale | VPN exit node — extends DNS filtering to mobile | ✅ Running | [Setup Guide](configs/tailscale/README.md) |
 | Uptime Kuma | Service and container health monitoring | ✅ Running (Docker) | [Setup Guide](configs/UpTimeKuma/README.md) |
+| Fail2ban | SSH brute force protection | ✅ Running | [Setup Guide](configs/fail2ban/README.md) |
 
 ## 📊 Status
 
 ![Chester's Homelab Status](image-1.png)
+
 ---
 ## 🌐 Network
 | Layer | Details |
@@ -42,8 +44,8 @@ explore networking concepts, and document my progress in systems and infrastruct
 | ✅ | Migrate AdGuard Home to Docker |
 | ✅ | DNS-over-HTTPS (DoH) upstream configuration |
 | ✅ | Uptime Kuma — service and container monitoring |
+| ✅ | Fail2ban — SSH brute force protection |
 | ⏳ | UFW firewall |
-| ⏳ | CrowdSec — intrusion detection |
 | ⏳ | Nginx reverse proxy — clean local URLs |
 | ⏳ | Expand to dedicated server (OptiPlex 3070) |
 
@@ -63,6 +65,10 @@ meaning DNS queries leaving the Orange Pi are encrypted and not visible to the I
 Uptime Kuma runs in Docker and monitors all services and containers via the Docker
 socket — covering AdGuard Home (HTTP and container health), Tailscale (ping),
 Orange Pi (ping), DNS (ping), and Speedtest Tracker (container health).
+
+Fail2ban runs natively and monitors SSH login attempts — banning IPs after 5 failed
+attempts within 10 minutes for 1 hour. Applied even on a private network as a zero
+trust baseline — network trust should never be assumed.
 
 ---
 ## 📅 Project Timeline
@@ -95,14 +101,20 @@ Orange Pi (ping), DNS (ping), and Speedtest Tracker (container health).
 - Identified and assessed CVE-2026-31431 exposure
 
 ### Phase 6 — Monitoring
-TTried the usual recommendations - Grafana, Netdata, Prometheus — but they're either too heavy for a 1GB board or just overkill for what I actually need. Uptime Kuma made more sense, lightweight and gets the job done. I'll add a notification bot in the future if the need arises, but for now this is good enough.
+Tried the usual recommendations — Grafana, Netdata, Prometheus — but they're either too heavy for a 1GB board or just overkill for what I actually need. Uptime Kuma made more sense, lightweight and gets the job done. I'll add a notification bot in the future if the need arises, but for now this is good enough.
+
 - Deployed Uptime Kuma in Docker
 - Mounted Docker socket for container health monitoring
 - Monitors: AdGuard Home (HTTP + Docker), Tailscale (ping), Orange Pi (ping), DNS Primary (ping), Speedtest Tracker (Docker)
 
-### Phase 7 — Planneds
+### Phase 7 — Security Hardening
+- Installed Fail2ban natively on Armbian Trixie
+- Configured SSH jail — 5 failed attempts within 10 minutes triggers a 1 hour ban
+- Resolved Tailscale MagicDNS conflict with system DNS (`chattr +i` on resolv.conf)
+- Applied zero trust principle — SSH hardened even on a private network
+
+### Phase 8 — Planned
 - UFW firewall
-- CrowdSec intrusion detection
 - Nginx reverse proxy
 - Dell OptiPlex 3070 hardware expansion
 
