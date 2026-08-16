@@ -1,131 +1,96 @@
-# 🏠 Home Lab
-A personal home lab built on a single-board computer — used to self-host services,
-explore networking concepts, and document my progress in systems and infrastructure.
----
+# 🏠 Homelab
+
+Self-hosted services on a single-board computer. Notes on networking,
+Linux, and infrastructure as I learn them.
+
 ## 🖥️ Hardware
-| Component | Details |
-|-----------|---------|
-| Board | Orange Pi PC H3 |
-| RAM | 1GB DDR3 |
-| OS | Armbian Debian Trixie Minimal |
+
+| | |
+|---|---|
+| Board | Orange Pi PC (Allwinner H3) |
+| RAM | 1 GB DDR3 |
+| OS | Armbian — Debian Trixie Minimal |
 | Storage | MicroSD (SanDisk High Endurance) |
 
-📖 [Orange Pi Initial Setup Guide](docs/orange-pi-setup.md)
+[Initial setup notes →](Orange%20Pi%20setup/README.md)
 
----
-## 🧰 Current Stack
-| Service | Purpose | Status | Docs |
-|---------|---------|--------|------|
-| Docker | Container runtime | ✅ Running | [Setup Guide](configs/docker/README.md) |
-| AdGuard Home | Network-wide DNS filtering (~83% block rate) | ✅ Running (Docker) | [Setup Guide](configs/adguard/README.md) |
-| Tailscale | VPN exit node — extends DNS filtering to mobile | ✅ Running | [Setup Guide](configs/tailscale/README.md) |
-| Uptime Kuma | Service and container health monitoring | ✅ Running (Docker) | [Setup Guide](configs/UpTimeKuma/README.md) |
-| Fail2ban | SSH brute force protection | ✅ Running | [Setup Guide](configs/fail2ban/README.md) |
+## 🧰 Stack
 
-## 📊 Status
+| Service | Purpose | Runtime | |
+|---|---|---|---|
+| Docker | Container runtime | host | [docs](configs/docker/README.md) |
+| AdGuard Home | Network-wide DNS filtering — ~83% block rate | container | [docs](configs/adguard/README.md) |
+| Tailscale | VPN exit node, extends filtering to mobile | host | [docs](configs/tailscale/README.md) |
+| Uptime Kuma | Service + container health | container | [docs](configs/UpTimeKuma/README.md) |
+| Fail2ban | SSH brute-force protection | host | [docs](Fail2ban/Fail2ban.MD) |
 
-![Chester's Homelab Status](image-1.png)
+⏳ **Next up** — UFW · Nginx reverse proxy · Dell OptiPlex 3070
 
----
-## 🌐 Network
-| Layer | Details |
-|-------|---------|
-| DNS | AdGuard Home → Cloudflare DoH / Quad9 DoH / Google DoH |
-| VPN | Tailscale NAT traversal — no port forwarding required |
+![Status dashboard](image-1.png)
 
----
-## 🗺️ Roadmap
-| Status | Task |
-|--------|------|
-| ✅ | Orange Pi initial setup |
-| ✅ | AdGuard Home — network-wide ad/tracker blocking |
-| ✅ | Tailscale — VPN exit node with DNS filtering on mobile |
-| ✅ | Docker — container runtime |
-| ✅ | Migrate AdGuard Home to Docker |
-| ✅ | DNS-over-HTTPS (DoH) upstream configuration |
-| ✅ | Uptime Kuma — service and container monitoring |
-| ✅ | Fail2ban — SSH brute force protection |
-| ⏳ | UFW firewall |
-| ⏳ | Nginx reverse proxy — clean local URLs |
-| ⏳ | Expand to dedicated server (OptiPlex 3070) |
+## 🤔 Why I did it this way
 
----
-## 📋 Current State
-AdGuard Home is running as a Docker container with config and data persisted via
-volumes at `/opt/adguardhome/`. Tailscale runs natively on the host — this is
-intentional, as exit node functionality requires direct access to the host network
-stack that is easier to manage outside of a container.
+**DNS** — AdGuard resolves upstream over DoH (Cloudflare, Quad9, Google),
+so queries leaving the network aren't visible to the ISP.
 
-Docker was chosen for AdGuard Home specifically for easier recovery after OS
-reflashes and cleaner config backups.
+**Containers where it helps** — AdGuard runs in Docker with config
+persisted to `/opt/adguardhome/`, which makes recovery after an SD card
+reflash trivial. Tailscale stays on the host; exit-node routing needs
+direct access to the host network stack.
 
-AdGuard Home is configured with DNS-over-HTTPS upstreams (Cloudflare, Quad9, Google),
-meaning DNS queries leaving the Orange Pi are encrypted and not visible to the ISP.
+**Monitoring, sized to the hardware** — Grafana, Prometheus, and Netdata
+are all either too heavy for 1 GB of RAM or solving problems I don't
+have. Uptime Kuma answers the actual question: is it up? It watches
+AdGuard (HTTP + container), Tailscale, the Pi, DNS, and Speedtest
+Tracker via the Docker socket.
 
-Uptime Kuma runs in Docker and monitors all services and containers via the Docker
-socket — covering AdGuard Home (HTTP and container health), Tailscale (ping),
-Orange Pi (ping), DNS (ping), and Speedtest Tracker (container health).
+**Zero trust on a flat LAN** — Fail2ban bans an IP for an hour after 5
+failed SSH attempts in 10 minutes. The network being "private" isn't a
+control.
 
-Fail2ban runs natively and monitors SSH login attempts — banning IPs after 5 failed
-attempts within 10 minutes for 1 hour. Applied even on a private network as a zero
-trust baseline — network trust should never be assumed.
+## 🛠️ Build log
 
----
-## 📅 Project Timeline
+**Setup** — Bought an Orange Pi PC listed as an "Orange Pi One." Flashed
+the vendor Ubuntu 20.04 image, which was EOL and unstable. Figured out
+the actual board model by inspecting it physically.
 
-### Phase 1 — Initial Setup
-- Purchased Orange Pi PC H3 from Lazada (listed as "Orange Pi One" — board was mislabeled)
-- Flashed official Orange Pi Ubuntu 20.04 image — EOL and unstable
-- Identified correct board model physically (Orange Pi PC, not One)
+**First stack** — AdGuard Home and Tailscale installed natively.
+Confirmed DNS filtering worked over VPN on mobile.
 
-### Phase 2 — First Stack (Native)
-- Installed AdGuard Home natively on Ubuntu 20.04
-- Installed Tailscale natively and configured as exit node
-- Confirmed DNS filtering and VPN working on mobile
+**OS migration** — Reflashed to Armbian Trixie (correct image for this
+board). Backed up AdGuard config over `scp` first, disabled
+`systemd-resolved` to free port 53, restored config after.
 
-### Phase 3 — OS Migration
-- Reflashed to Armbian Debian Trixie Minimal (correct image for Orange Pi PC)
-- Backed up AdGuard config before reflash via `scp`
-- Disabled `systemd-resolved` to free port 53
-- Restored AdGuard config after reflash
+**Docker migration** — Installed Docker CE from the official Debian
+repo, moved AdGuard into a container with persistent volumes. Config,
+credentials, and blocklists restored intact.
 
-### Phase 4 — Docker Migration
-- Installed Docker CE on Armbian Trixie using the official Debian repository
-- Deployed AdGuard Home in Docker with persistent volumes
-- Restored config from backup — credentials and blocklists intact
-- Kept Tailscale native (intentional — exit node requires host networking)
+**Hardening** — Switched upstreams to DoH, verified resolution across
+all devices, assessed CVE-2026-31431 exposure.
 
-### Phase 5 — Hardening & Privacy
-- Configured DoH upstreams in AdGuard (Cloudflare, Quad9, Google)
-- Verified DNS routing on all devices
-- Identified and assessed CVE-2026-31431 exposure
+**Monitoring** — Deployed Uptime Kuma, mounted the Docker socket for
+container health checks.
 
-### Phase 6 — Monitoring
-Tried the usual recommendations — Grafana, Netdata, Prometheus — but they're either too heavy for a 1GB board or just overkill for what I actually need. Uptime Kuma made more sense, lightweight and gets the job done. I'll add a notification bot in the future if the need arises, but for now this is good enough.
+**SSH hardening** — Fail2ban with an SSH jail. Hit a conflict between
+Tailscale MagicDNS and system DNS; fixed with `chattr +i` on
+`resolv.conf`.
 
-- Deployed Uptime Kuma in Docker
-- Mounted Docker socket for container health monitoring
-- Monitors: AdGuard Home (HTTP + Docker), Tailscale (ping), Orange Pi (ping), DNS Primary (ping), Speedtest Tracker (Docker)
+## 💥 Things that broke
 
-### Phase 7 — Security Hardening
-- Installed Fail2ban natively on Armbian Trixie
-- Configured SSH jail — 5 failed attempts within 10 minutes triggers a 1 hour ban
-- Resolved Tailscale MagicDNS conflict with system DNS (`chattr +i` on resolv.conf)
-- Applied zero trust principle — SSH hardened even on a private network
+| What happened | Fix |
+|---|---|
+| Board was mislabeled as "Orange Pi One" on Lazada | Identified the real model physically, reflashed correct Armbian image |
+| `systemd-resolved` holding port 53 | Disabled it so AdGuard could bind |
+| Tailscale MagicDNS overwriting `/etc/resolv.conf` | `chattr +i` to lock the file |
+| Vendor Ubuntu 20.04 image unstable + EOL | Migrated to Armbian Debian Trixie |
 
-### Phase 8 — Planned
-- UFW firewall
-- Nginx reverse proxy
-- Dell OptiPlex 3070 hardware expansion
-
----
 ## 🎯 Goals
-- Build hands-on experience with Linux, networking, and self-hosted infrastructure
-- Document configurations and lessons learned for future reference
-- Progressively expand services as hardware allows
 
----
-## 📝 A Note on Documentation
-Configuration guides and documentation in this repo were written with the assistance
-of an LLM (Claude by Anthropic) for clarity and structure. All setup steps reflect
-my actual hands-on experience building and troubleshooting this lab.
+Get hands-on with Linux, networking, and self-hosted infra. Document
+enough that future-me can rebuild this from scratch.
+
+## 📝 Note
+
+Docs in this repo were structured with LLM assistance. Every step
+reflects work actually done on this hardware, including the parts that
+broke.
