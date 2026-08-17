@@ -23,6 +23,7 @@ Linux, and infrastructure as I learn them.
 | Tailscale | VPN exit node, extends filtering to mobile | host | [docs](configs/tailscale/README.md) |
 | Uptime Kuma | Service + container health | container | [docs](configs/UpTimeKuma/README.md) |
 | Fail2ban | SSH brute-force protection | host | [docs](Fail2ban/Fail2ban.MD) |
+| Libreoffice | Document Convertion | host | [docs](LibreOffice/LibreOffice.MD) |
 
 ⏳ **Next up** — UFW · Nginx reverse proxy · Dell OptiPlex 3070
 
