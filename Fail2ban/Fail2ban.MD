@@ -1,187 +1,214 @@
-# 🧱 UFW — Firewall Setup
+# 🔐 Fail2ban — SSH Brute-Force Protection
 
-Host firewall on Armbian Debian Trixie, configured alongside Fail2ban
-and a Tailscale exit node.
+Setup on Armbian Debian Trixie, Orange Pi PC (H3).
 
 ## Why
 
-Default-deny inbound with explicit allows for LAN services only. Nothing
-is exposed to the internet — the router does no port forwarding, and
-remote access goes through Tailscale.
+Network trust should never be assumed. Fail2ban watches SSH auth logs and
+bans IPs that fail repeatedly — a zero trust baseline that applies even
+before anything is publicly exposed. Pairs with key-only SSH auth as
+defense in depth.
 
 ## Prerequisites
 
 | | |
 |---|---|
+| Hardware | Linux SBC or server — tested on Orange Pi PC (H3), Armbian Trixie |
 | Access | root or sudo |
-| Second SSH session | **Required** — recovery path if you lock yourself out |
-| Known subnet | Run `ip -4 addr show` first |
+| DNS | Must resolve before install — see below |
 
-> ⚠️ Enabling UFW before adding an SSH allow rule will drop your session.
-> Every `allow` goes in **before** `enable`.
+> ⚠️ **Tailscale MagicDNS conflict.** If MagicDNS is active, `apt install`
+> fails with `Device or resource busy` because `/etc/resolv.conf` is
+> locked. Fix first:
+>
+> ```bash
+> sudo tailscale set --accept-dns=false
+> sudo chattr -i /etc/resolv.conf
+> sudo rm /etc/resolv.conf
+> printf "nameserver 1.1.1.1\nnameserver 8.8.8.8\n" | sudo tee /etc/resolv.conf
+> sudo chattr +i /etc/resolv.conf
+> ```
+>
+> `chattr +i` makes the file immutable so Tailscale can't overwrite it
+> again. Remember this if you need to change DNS later — `chattr -i`
+> first.
 
-## 1. Audit what's listening
+## 1. Install
 
 ```bash
-sudo ss -tulpn | grep LISTEN
+sudo apt update
+sudo apt install fail2ban -y
 ```
 
-On this box:
+## 2. Configure the SSH jail
 
-| Port | Service | Binding |
-|---|---|---|
-| 22 | SSH | native |
-| 53 (TCP+UDP) | AdGuard DNS | docker-proxy |
-| 80 | AdGuard web UI | docker-proxy |
-| 3000 | Speedtest Tracker | docker-proxy |
-| 3001 | Uptime Kuma | docker-proxy |
-
-> `ss -tulpn | grep LISTEN` only shows TCP. Check UDP separately with
-> `sudo ss -ulpn | grep :53` — DNS clients use UDP.
-
-## 2. Install
+Never edit `jail.conf` — it's overwritten on package updates. Use
+`jail.local`:
 
 ```bash
-sudo apt update && sudo apt install ufw -y
+sudo nano /etc/fail2ban/jail.local
 ```
 
-Installing does not enable it. Nothing changes until `ufw enable`.
+```ini
+[DEFAULT]
+bantime  = 1h
+findtime = 10m
+maxretry = 5
+ignoreip = 127.0.0.1/8 ::1 192.168.18.0/24 100.64.0.0/10 172.17.0.0/16 172.18.0.0/16
 
-## 3. Allow forwarding for the Tailscale exit node
+[sshd]
+enabled = true
+port    = ssh
+logpath = %(sshd_log)s
+```
+
+| Setting | Meaning |
+|---|---|
+| `bantime` | Banned IPs blocked for 1 hour |
+| `findtime` | Failure counting window — 10 minutes |
+| `maxretry` | 5 failures in the window triggers a ban |
+| `ignoreip` | Never ban these — loopback, LAN, Tailscale CGNAT, Docker bridges |
+
+> ⚠️ **Set `ignoreip` to your actual ranges.** `100.64.0.0/10` covers the
+> whole Tailscale CGNAT range — keep it or you can ban yourself out of
+> remote access. `172.17.0.0/16` and `172.18.0.0/16` are the Docker
+> bridges, so container health checks can't trip the jail.
+
+> Armbian on H3 names the ethernet interface `end0`, not `eth0`. Run
+> `ip -4 addr show` to get your real subnet before setting `ignoreip`.
+
+> Fail2ban 1.1.0 deprecates `backend = %(sshd_backend)s` — omit it. The
+> systemd journal backend is used automatically.
+
+Save with `Ctrl+O` → `Enter` → `Ctrl+X`.
+
+## 3. Restart and confirm
 
 ```bash
-sudo nano /etc/default/ufw
+sudo systemctl restart fail2ban
+sudo systemctl enable fail2ban
+sudo fail2ban-client status sshd
 ```
 
 ```text
-DEFAULT_FORWARD_POLICY="ACCEPT"
+Status for the jail: sshd
+|- Filter
+|  |- Currently failed: 0
+|  |- Total failed:     0
+|  `- Journal matches:  _SYSTEMD_UNIT=ssh.service + _COMM=sshd
+`- Actions
+   |- Currently banned: 0
+   |- Total banned:     0
+   `- Banned IP list:
 ```
 
-> Exit node functionality routes traffic *through* this host. UFW's
-> default `FORWARD` policy is `DROP`, which silently breaks it.
-
-## 4. Add rules
+Confirm `ignoreip` loaded:
 
 ```bash
-sudo ufw allow in on tailscale0
-sudo ufw allow from 192.168.18.0/24 to any port 22 proto tcp
-sudo ufw allow from 192.168.18.0/24 to any port 53
-sudo ufw allow from 192.168.18.0/24 to any port 80 proto tcp
-sudo ufw allow from 192.168.18.0/24 to any port 3000 proto tcp
-sudo ufw allow from 192.168.18.0/24 to any port 3001 proto tcp
+sudo fail2ban-client get sshd ignoreip
 ```
 
-> Port 53 intentionally omits `proto` so both TCP and UDP are allowed.
-> UDP is what clients actually use.
+## 4. Verify the ban path
 
-## 5. Set policies and review
-
-```bash
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
-sudo ufw show added
-```
-
-Confirm the SSH rule is present before continuing.
-
-## 6. Enable
+Service running ≠ jail working. Confirm the backend:
 
 ```bash
-sudo ufw enable
-```
-
-## 7. Verify
-
-```bash
-sudo ufw status verbose
+sudo fail2ban-client get sshd actions
 ```
 
 ```text
-Status: active
-Logging: on (low)
-Default: deny (incoming), allow (outgoing), allow (routed)
-New profiles: skip
-
-To                         Action      From
---                         ------      ----
-Anywhere on tailscale0     ALLOW IN    Anywhere
-22/tcp                     ALLOW IN    192.168.18.0/24
-53                         ALLOW IN    192.168.18.0/24
-80/tcp                     ALLOW IN    192.168.18.0/24
-3000/tcp                   ALLOW IN    192.168.18.0/24
-3001/tcp                   ALLOW IN    192.168.18.0/24
-Anywhere (v6) on tailscale0 ALLOW IN    Anywhere (v6)
+The jail sshd has the following actions:
+nftables
 ```
 
-`allow (routed)` confirms the forward policy applied — exit node intact.
-
-**Then test each path:**
+Force a ban on a test IP:
 
 ```bash
-# From another machine on the LAN
-ssh fritz@192.168.18.28
-dig @192.168.18.28 google.com
-```
-
-- AdGuard UI — `http://192.168.18.28`
-- Uptime Kuma — `http://192.168.18.28:3001` (all monitors should be green)
-- Tailscale — WiFi off on mobile, confirm exit node routing
-
-## ⚠️ Known limitation — Docker bypasses UFW
-
-Containers with published ports write directly to the `DOCKER-USER`
-nftables chain, which UFW does not manage. Ports 53, 80, 3000, and 3001
-stay reachable from outside the allowed subnet regardless of UFW policy.
-
-The UFW rules for those ports are documentation of intent, not
-enforcement. Real restriction requires binding to a specific interface in
-compose:
-
-```yaml
-ports:
-  - "192.168.18.28:3001:3001"
-```
-
-Acceptable here because nothing is port-forwarded at the router. Worth
-knowing before assuming UFW covers container traffic.
-
-## 🔗 Interaction with Fail2ban
-
-Both write nftables rules, but they don't conflict. Fail2ban's chain runs
-at `priority filter - 1`, ahead of UFW's, so bans apply regardless of
-firewall policy:
-
-```bash
+sudo fail2ban-client set sshd banip 203.0.113.42
 sudo nft list table inet f2b-table
 ```
 
 ```text
-chain f2b-chain {
-    type filter hook input priority filter - 1; policy accept;
-    tcp dport 22 ip saddr @addr-set-sshd reject with icmp port-unreachable
+table inet f2b-table {
+	set addr-set-sshd {
+		type ipv4_addr
+		elements = { 203.0.113.42 }
+	}
+
+	chain f2b-chain {
+		type filter hook input priority filter - 1; policy accept;
+		tcp dport 22 ip saddr @addr-set-sshd reject with icmp port-unreachable
+	}
 }
 ```
+
+Clean up and confirm the set drains:
+
+```bash
+sudo fail2ban-client set sshd unbanip 203.0.113.42
+sudo nft list table inet f2b-table
+```
+
+`elements` should be gone.
+
+> **Note:** `ignoreip` only filters bans triggered by log matches. Manual
+> bans via `set banip` bypass it by design — a manual ban on a whitelisted
+> IP will succeed. To verify `ignoreip` is active, use
+> `fail2ban-client get sshd ignoreip` rather than trying to ban a LAN
+> address.
+
+## 🔗 Interaction with UFW
+
+Both write nftables rules, but they don't conflict. Fail2ban's chain runs
+at `priority filter - 1` — ahead of UFW's — so bans apply regardless of
+firewall policy or state.
 
 ## 🛠️ Commands
 
 | | |
 |---|---|
-| `sudo ufw status verbose` | Current rules and policies |
-| `sudo ufw status numbered` | Rules with index numbers |
-| `sudo ufw delete <num>` | Remove a rule by index |
-| `sudo ufw show added` | Rules as added, before enable |
-| `sudo ufw disable` | Turn off — recovery |
-| `sudo ufw reload` | Reapply config |
+| `sudo fail2ban-client status` | List all jails |
+| `sudo fail2ban-client status sshd` | Jail detail + banned IPs |
+| `sudo fail2ban-client get sshd ignoreip` | Confirm whitelist |
+| `sudo fail2ban-client set sshd unbanip <IP>` | Unban |
+| `sudo fail2ban-client banned` | All banned IPs across jails |
+| `sudo journalctl -u fail2ban -f` | Follow logs live |
+| `sudo fail2ban-client reload` | Apply config without restart |
+| `sudo nft list table inet f2b-table` | Inspect active nftables rules |
 
-## 🚨 Lockout recovery
+## 📝 Notes
 
-1. Use your second SSH session — `sudo ufw disable`
-2. If both sessions are dead, pull the SD card, mount it elsewhere, set
-   `ENABLED=no` in `/etc/ufw/ufw.conf`
+- **Config** — always `jail.local`, never `jail.conf`
+- **RAM** — ~11 MB, negligible on a 1 GB board
+- **Native, not Docker** — host-level security tooling needs direct access
+  to journal logs and nftables; containerizing adds failure modes for no
+  benefit
+- **Persistence** — bans clear on service restart by default. Add
+  `dbpurgeage = 7d` to `[DEFAULT]` to retain ban history
+- **Not a substitute for keys** — Fail2ban slows brute force, key-only
+  auth prevents it. Run both
+
+## Optional — recidive jail
+
+Bans repeat offenders for much longer. Add to `jail.local`:
+
+```ini
+[recidive]
+enabled  = true
+logpath  = /var/log/fail2ban.log
+bantime  = 1w
+findtime = 1d
+maxretry = 3
+```
+
+Three separate bans within a day earns a one week ban. Mostly useful once
+something is internet-facing.
 
 ## ⏭️ Next
 
 | | |
 |---|---|
-| [Nginx reverse proxy](../nginx/README.md) | Clean local URLs |
-| [Fail2ban](../fail2ban/README.md) | SSH brute-force protection |
+| [UFW](../ufw/README.md) | Host firewall |
+| [Docker](../docker/README.md) | Container runtime |
+| [Tailscale](../tailscale/README.md) | VPN exit node |
+| [AdGuard Home](../adguard/README.md) | DNS filtering |
