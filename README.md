@@ -1,85 +1,102 @@
+<div align="center">
+
 # 🏠 Homelab
 
-Self-hosted services on a single-board computer. Notes on networking,
-Linux, and infrastructure as I learn them.
+**Self-hosted services on a single-board computer.**<br>
+Notes on networking, Linux, and infrastructure as I learn them.
+
+![Armbian](https://img.shields.io/badge/Armbian-Trixie-FA6400?style=for-the-badge&logo=linux&logoColor=white)
+![Debian](https://img.shields.io/badge/Debian-A81D33?style=for-the-badge&logo=debian&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Tailscale](https://img.shields.io/badge/Tailscale-242424?style=for-the-badge&logo=tailscale&logoColor=white)
+![AdGuard](https://img.shields.io/badge/AdGuard_Home-68BC71?style=for-the-badge&logo=adguard&logoColor=white)
+
+![Last commit](https://img.shields.io/github/last-commit/ChesterFritz/Home-Lab-Project?style=flat-square&color=58a6ff)
+![Repo size](https://img.shields.io/github/repo-size/ChesterFritz/Home-Lab-Project?style=flat-square&color=58a6ff)
+![License](https://img.shields.io/github/license/ChesterFritz/Home-Lab-Project?style=flat-square&color=58a6ff)
+
+</div>
+
+---
+
+## 📈 Activity
+
+<div align="center">
+
+![Contribution graph](https://github-readme-activity-graph.vercel.app/graph?username=ChesterFritz&theme=github-compact&hide_border=true&area=true)
+
+</div>
 
 ## 🖥️ Hardware
 
-| | |
+| Component | Spec |
 |---|---|
-| Board | Orange Pi PC (Allwinner H3) |
-| RAM | 1 GB DDR3 |
-| OS | Armbian — Debian Trixie Minimal |
-| Storage | MicroSD (SanDisk High Endurance) |
+| **Board** | Orange Pi PC (Allwinner H3) |
+| **RAM** | 1 GB DDR3 |
+| **OS** | Armbian — Debian Trixie Minimal |
+| **Storage** | MicroSD (SanDisk High Endurance) |
 
-[Initial setup notes →](Orange%20Pi%20setup/README.MD)
+📄 [Initial setup notes →](Orange%20Pi%20setup/README.MD)
 
 ## 🧰 Stack
 
-| Service | Purpose | Runtime | |
-|---|---|---|---|
-| Docker | Container runtime | host | [docs](configs/docker/README.md) |
-| AdGuard Home | Network-wide DNS filtering — ~83% block rate | container | [docs](configs/adguard/README.md) |
-| Tailscale | VPN exit node, extends filtering to mobile | host | [docs](configs/tailscale/README.md) |
-| Uptime Kuma | Service + container health | container | [docs](configs/UpTimeKuma/README.md) |
-| Speedtest Tracker | Scheduled internet speed tests | container | |
-| Fail2ban | SSH brute-force protection | host | [docs](Fail2ban/Fail2ban.MD) |
-| UFW | Host firewall, default-deny inbound | host | [docs](ufw/README.md) |
-| LibreOffice | Document conversion | host | [docs](LibreOffice/LibreOffice.MD) |
+| | Service | Purpose | Runtime | Docs |
+|:-:|---|---|:-:|:-:|
+| 🐳 | **Docker** | Container runtime | host | [→](configs/docker/README.md) |
+| 🛡️ | **AdGuard Home** | Network-wide DNS filtering — ~83% block rate | container | [→](configs/adguard/README.md) |
+| 🔐 | **Tailscale** | VPN exit node, extends filtering to mobile | host | [→](configs/tailscale/README.md) |
+| 📊 | **Uptime Kuma** | Service + container health | container | [→](configs/UpTimeKuma/README.md) |
+| ⚡ | **Speedtest Tracker** | Scheduled internet speed tests | container | — |
+| 🚫 | **Fail2ban** | SSH brute-force protection | host | [→](Fail2ban/Fail2ban.MD) |
+| 🧱 | **UFW** | Host firewall, default-deny inbound | host | [→](ufw/README.md) |
+| 📝 | **LibreOffice** | Document conversion | host | [→](LibreOffice/LibreOffice.MD) |
 
-⏳ **Next up** — Nginx reverse proxy · Dell OptiPlex 3070
+> ⏳ **Next up** — Nginx reverse proxy · Dell OptiPlex 3070
+
+<div align="center">
 
 ![Status dashboard](image-1.png)
 
+</div>
+
 ## 🤔 Why I did it this way
 
-**DNS** — AdGuard resolves upstream over DoH (Cloudflare, Quad9, Google),
-so queries leaving the network aren't visible to the ISP.
+<details open>
+<summary><b>🌐 DNS</b></summary>
 
-**Containers where it helps** — AdGuard runs in Docker with config
-persisted to `/opt/adguardhome/`, which makes recovery after an SD card
-reflash trivial. Tailscale stays on the host; exit-node routing needs
-direct access to the host network stack.
+AdGuard resolves upstream over DoH (Cloudflare, Quad9, Google), so queries leaving the network aren't visible to the ISP.
+</details>
 
-**Monitoring, sized to the hardware** — Grafana, Prometheus, and Netdata
-are all either too heavy for 1 GB of RAM or solving problems I don't
-have. Uptime Kuma answers the actual question: is it up? It watches
-AdGuard (HTTP + container), Tailscale, the Pi, DNS, and Speedtest
-Tracker via the Docker socket.
+<details>
+<summary><b>📦 Containers where it helps</b></summary>
 
-**Zero trust on a flat LAN** — Fail2ban bans an IP for an hour after 5
-failed SSH attempts in 10 minutes. The network being "private" isn't a
-control.
+AdGuard runs in Docker with config persisted to `/opt/adguardhome/`, which makes recovery after an SD card reflash trivial. Tailscale stays on the host; exit-node routing needs direct access to the host network stack.
+</details>
+
+<details>
+<summary><b>📊 Monitoring, sized to the hardware</b></summary>
+
+Grafana, Prometheus, and Netdata are all either too heavy for 1 GB of RAM or solving problems I don't have. Uptime Kuma answers the actual question: is it up? It watches AdGuard (HTTP + container), Tailscale, the Pi, DNS, and Speedtest Tracker via the Docker socket.
+</details>
+
+<details>
+<summary><b>🔒 Zero trust on a flat LAN</b></summary>
+
+Fail2ban bans an IP for an hour after 5 failed SSH attempts in 10 minutes. The network being "private" isn't a control.
+</details>
 
 ## 🛠️ Build log
 
-**Setup** — Bought an Orange Pi PC listed as an "Orange Pi One." Flashed
-the vendor Ubuntu 20.04 image, which was EOL and unstable. Figured out
-the actual board model by inspecting it physically.
-
-**First stack** — AdGuard Home and Tailscale installed natively.
-Confirmed DNS filtering worked over VPN on mobile.
-
-**OS migration** — Reflashed to Armbian Trixie (correct image for this
-board). Backed up AdGuard config over `scp` first, disabled
-`systemd-resolved` to free port 53, restored config after.
-
-**Docker migration** — Installed Docker CE from the official Debian
-repo, moved AdGuard into a container with persistent volumes. Config,
-credentials, and blocklists restored intact.
-
-**Hardening** — Switched upstreams to DoH, verified resolution across
-all devices, assessed CVE-2026-31431 exposure.
-
-**Monitoring** — Deployed Uptime Kuma, mounted the Docker socket for
-container health checks.
-
-**SSH hardening** — Fail2ban with an SSH jail. Hit a conflict between
-Tailscale MagicDNS and system DNS; fixed with `chattr +i` on
-`resolv.conf`.
-
-**Firewall** — UFW with default-deny inbound and LAN-only allows,
-forward policy set to ACCEPT so the Tailscale exit node keeps working.
+| # | Phase | What happened |
+|:-:|---|---|
+| 1 | **Setup** | Bought an Orange Pi PC listed as an "Orange Pi One." Flashed the vendor Ubuntu 20.04 image (EOL, unstable). Identified the real board by inspecting it physically. |
+| 2 | **First stack** | AdGuard Home and Tailscale installed natively. Confirmed DNS filtering worked over VPN on mobile. |
+| 3 | **OS migration** | Reflashed to Armbian Trixie. Backed up AdGuard config over `scp`, disabled `systemd-resolved` to free port 53, restored config. |
+| 4 | **Docker migration** | Installed Docker CE from the official Debian repo, moved AdGuard into a container with persistent volumes. Config, credentials, and blocklists restored intact. |
+| 5 | **Hardening** | Switched upstreams to DoH, verified resolution across all devices, assessed CVE-2026-31431 exposure. |
+| 6 | **Monitoring** | Deployed Uptime Kuma, mounted the Docker socket for container health checks. |
+| 7 | **SSH hardening** | Fail2ban with an SSH jail. Fixed a Tailscale MagicDNS vs system DNS conflict with `chattr +i` on `resolv.conf`. |
+| 8 | **Firewall** | UFW with default-deny inbound and LAN-only allows; forward policy set to ACCEPT so the exit node keeps working. |
 
 ## 💥 Things that broke
 
@@ -92,11 +109,10 @@ forward policy set to ACCEPT so the Tailscale exit node keeps working.
 
 ## 🎯 Goals
 
-Get hands-on with Linux, networking, and self-hosted infra. Document
-enough that future-me can rebuild this from scratch.
+Get hands-on with Linux, networking, and self-hosted infra. Document enough that future-me can rebuild this from scratch.
 
-## 📝 Note
+---
 
-Docs in this repo were structured with LLM assistance. Every step
-reflects work actually done on this hardware, including the parts that
-broke.
+<div align="center">
+<sub>📝 Docs in this repo were structured with LLM assistance. Every step reflects work actually done on this hardware, including the parts that broke.</sub>
+</div>
