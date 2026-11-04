@@ -23,7 +23,7 @@ Notes on networking, Linux, and infrastructure as I learn them.
 
 <div align="center">
 
-![Contribution graph](https://github-readme-activity-graph.vercel.app/graph?username=ChesterFritz&theme=github-compact&hide_border=true&area=true)
+![Contribution graph](assets/activity-graph.svg)
 
 </div>
 
