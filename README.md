@@ -12,7 +12,7 @@ Linux, and infrastructure as I learn them.
 | OS | Armbian — Debian Trixie Minimal |
 | Storage | MicroSD (SanDisk High Endurance) |
 
-[Initial setup notes →](Orange%20Pi%20setup/README.md)
+[Initial setup notes →](Orange%20Pi%20setup/README.MD)
 
 ## 🧰 Stack
 
@@ -22,10 +22,12 @@ Linux, and infrastructure as I learn them.
 | AdGuard Home | Network-wide DNS filtering — ~83% block rate | container | [docs](configs/adguard/README.md) |
 | Tailscale | VPN exit node, extends filtering to mobile | host | [docs](configs/tailscale/README.md) |
 | Uptime Kuma | Service + container health | container | [docs](configs/UpTimeKuma/README.md) |
+| Speedtest Tracker | Scheduled internet speed tests | container | |
 | Fail2ban | SSH brute-force protection | host | [docs](Fail2ban/Fail2ban.MD) |
-| Libreoffice | Document Convertion | host | [docs](LibreOffice/LibreOffice.MD) |
+| UFW | Host firewall, default-deny inbound | host | [docs](ufw/README.md) |
+| LibreOffice | Document conversion | host | [docs](LibreOffice/LibreOffice.MD) |
 
-⏳ **Next up** — UFW · Nginx reverse proxy · Dell OptiPlex 3070
+⏳ **Next up** — Nginx reverse proxy · Dell OptiPlex 3070
 
 ![Status dashboard](image-1.png)
 
@@ -75,6 +77,9 @@ container health checks.
 **SSH hardening** — Fail2ban with an SSH jail. Hit a conflict between
 Tailscale MagicDNS and system DNS; fixed with `chattr +i` on
 `resolv.conf`.
+
+**Firewall** — UFW with default-deny inbound and LAN-only allows,
+forward policy set to ACCEPT so the Tailscale exit node keeps working.
 
 ## 💥 Things that broke
 

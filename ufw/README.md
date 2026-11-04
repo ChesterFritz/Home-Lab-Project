@@ -142,6 +142,10 @@ ports:
   - "192.168.18.28:3001:3001"
 ```
 
+> Don't bind DNS (port 53) to the LAN IP only — Tailscale clients reach
+> AdGuard over `tailscale0`, so that would break filtering on mobile.
+> Bind the Tailscale IP as well, or leave DNS on all interfaces.
+
 Acceptable here because nothing is port-forwarded at the router. Worth
 knowing before assuming UFW covers container traffic.
 
@@ -183,5 +187,5 @@ chain f2b-chain {
 
 | | |
 |---|---|
-| [Nginx reverse proxy](../nginx/README.md) | Clean local URLs |
-| [Fail2ban](../fail2ban/README.md) | SSH brute-force protection |
+| Nginx reverse proxy *(coming soon)* | Clean local URLs |
+| [Fail2ban](../Fail2ban/Fail2ban.MD) | SSH brute-force protection |
