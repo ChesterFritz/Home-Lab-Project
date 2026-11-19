@@ -1,0 +1,29 @@
+name: Activity graph
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: [assets/activity-graph.svg]
+  schedule:
+    - cron: "0 0 * * 1" # weekly, so quiet weeks still show up as zeros
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history; the graph is built from git log
+      - run: python3 .github/scripts/activity_graph.py
+      - name: Commit if changed
+        run: |
+          git diff --quiet assets/activity-graph.svg && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/activity-graph.svg
+          git commit -m "Update activity graph"
+          git push

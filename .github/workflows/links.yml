@@ -1,0 +1,25 @@
+name: Check links
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 3 1 * *" # monthly, catches external links that rot
+  workflow_dispatch:
+
+jobs:
+  lychee:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Internal links (fail the build)
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --include-fragments --no-progress "./**/*.md"
+          fail: true
+      - name: External links (report only)
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --no-progress --exclude-private --exclude "login\.tailscale\.com" "./**/*.md"
+          fail: false

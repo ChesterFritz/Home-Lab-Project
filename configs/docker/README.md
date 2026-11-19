@@ -147,13 +147,16 @@ docker info        # system-wide Docker info
 
 ## 🔥 Docker and UFW
 
-Docker writes its own nftables rules into the `DOCKER-USER` chain, which **UFW does not manage**. Any container started with `-p 3001:3001` is reachable from outside your allowed subnet regardless of UFW policy.
+Published ports are DNAT'd in the `nat` table's `PREROUTING` chain, so container traffic goes through `FORWARD` (Docker's own `DOCKER` chain), never `INPUT` — where UFW's rules live. **UFW never sees it.** Any container started with `-p 3001:3001` is reachable from outside your allowed subnet regardless of UFW policy.
 
 ```bash
 # See Docker's own rules
-sudo nft list chain inet filter DOCKER-USER 2>/dev/null || \
-  sudo iptables -L DOCKER-USER -n
+sudo iptables -t nat -L DOCKER -n     # port DNATs
+sudo iptables -L DOCKER-USER -n -v    # empty hook for your own filters
 ```
+
+> `DOCKER-USER` is the one chain Docker leaves for you — rules there run
+> before Docker's own and survive daemon restarts.
 
 To actually restrict a container port, bind it to a specific interface instead of relying on the firewall:
 

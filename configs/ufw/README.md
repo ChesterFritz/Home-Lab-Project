@@ -129,8 +129,9 @@ dig @192.168.18.28 google.com
 
 ## ⚠️ Known limitation — Docker bypasses UFW
 
-Containers with published ports write directly to the `DOCKER-USER`
-nftables chain, which UFW does not manage. Ports 53, 80, 3000, and 3001
+Published container ports are DNAT'd in `PREROUTING` and accepted in
+Docker's own `FORWARD` chains — they never reach `INPUT`, where UFW's
+rules live. Ports 53, 80, 3000, and 3001
 stay reachable from outside the allowed subnet regardless of UFW policy.
 
 The UFW rules for those ports are documentation of intent, not
@@ -188,4 +189,5 @@ chain f2b-chain {
 | | |
 |---|---|
 | Nginx reverse proxy *(coming soon)* | Clean local URLs |
-| [Fail2ban](../Fail2ban/Fail2ban.MD) | SSH brute-force protection |
+| [Fail2ban](../fail2ban/README.md) | SSH brute-force protection |
+| [Docker](../docker/README.md) | Why published ports bypass UFW |

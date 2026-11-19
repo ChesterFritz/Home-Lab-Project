@@ -183,8 +183,10 @@ firewall policy or state.
 - **Native, not Docker** — host-level security tooling needs direct access
   to journal logs and nftables; containerizing adds failure modes for no
   benefit
-- **Persistence** — bans clear on service restart by default. Add
-  `dbpurgeage = 7d` to `[DEFAULT]` to retain ban history
+- **Persistence** — active bans survive restarts; they're stored in
+  `/var/lib/fail2ban/fail2ban.sqlite3` and restored on start. History is
+  purged after `dbpurgeage` (default `1d`) — raise it, e.g. `7d`, if you
+  enable the recidive jail below
 - **Not a substitute for keys** — Fail2ban slows brute force, key-only
   auth prevents it. Run both
 

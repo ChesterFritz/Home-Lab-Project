@@ -26,10 +26,12 @@ For a 1GB board, native headless installation is more practical than a Docker co
 
 ```bash
 sudo apt update
-sudo apt install libreoffice -y
+sudo apt install --no-install-recommends libreoffice-nogui -y
 ```
 
-This installs LibreOffice in headless mode — no desktop or GUI components needed.
+> Use `libreoffice-nogui`, not `libreoffice`. The plain `libreoffice`
+> package pulls in the GTK frontend and X11 libraries — hundreds of MB you
+> never use on a headless board.
 
 ---
 
@@ -67,8 +69,12 @@ libreoffice --headless --convert-to pdf document.docx
 
 ### PDF to Word
 ```bash
-libreoffice --headless --convert-to docx document.pdf
+libreoffice --headless --infilter="writer_pdf_import" --convert-to docx document.pdf
 ```
+
+> Without `--infilter`, LibreOffice opens PDFs in Draw and the export
+> fails or produces text boxes instead of flowing text. Even with it,
+> expect layout loss — PDF isn't an editable format.
 
 ### Excel to PDF
 ```bash
@@ -114,7 +120,7 @@ scp fritz@192.168.18.28:~/document.pdf ~/Desktop/
 
 | Problem | Likely Cause | Fix |
 |---------|-------------|-----|
-| `command not found` | LibreOffice not installed | Run `sudo apt install libreoffice -y` |
+| `command not found` | LibreOffice not installed | Run `sudo apt install --no-install-recommends libreoffice-nogui -y` |
 | Conversion slow | Normal — H3 is a weak CPU | Wait it out, document conversion is lighter than video |
 | Output file missing | Wrong directory | Check with `ls` or use `--outdir` to specify location |
 | Formatting looks off | LibreOffice rendering difference | Expected for complex documents — simplify formatting |
@@ -136,5 +142,4 @@ scp fritz@192.168.18.28:~/document.pdf ~/Desktop/
 
 | Guide | Description |
 |-------|-------------|
-| [Docker Setup](../docker/README.md) | Container runtime |
 | [Tailscale Setup](../tailscale/README.md) | Access Orange Pi remotely for file transfers |

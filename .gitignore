@@ -1,0 +1,8 @@
+# Live AdGuard config holds the bcrypt admin hash and client names.
+# Commit only the sanitized configs/adguard/AdGuardHome.example.yaml.
+AdGuardHome.yaml
+
+# Backups made by the guides
+*-backup*.tar.gz
+
+.DS_Store

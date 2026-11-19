@@ -155,7 +155,7 @@ sudo systemctl restart ssh
 
 | Guide | |
 |---|---|
-| [AdGuard Home](../configs/adguard/README.md) | Network-wide DNS filtering |
-| [Tailscale](../configs/tailscale/README.md) | VPN exit node |
-| [Docker](../configs/docker/README.md) | Container runtime |
-| [Fail2ban](../configs/fail2ban/README.md) | SSH brute-force protection |
+| [AdGuard Home](../adguard/README.md) | Network-wide DNS filtering |
+| [Tailscale](../tailscale/README.md) | VPN exit node |
+| [Docker](../docker/README.md) | Container runtime |
+| [Fail2ban](../fail2ban/README.md) | SSH brute-force protection |

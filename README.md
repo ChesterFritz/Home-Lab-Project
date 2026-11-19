@@ -14,6 +14,7 @@ Notes on networking, Linux, and infrastructure as I learn them.
 ![Last commit](https://img.shields.io/github/last-commit/ChesterFritz/Home-Lab-Project?style=flat-square&color=58a6ff)
 ![Repo size](https://img.shields.io/github/repo-size/ChesterFritz/Home-Lab-Project?style=flat-square&color=58a6ff)
 ![License](https://img.shields.io/github/license/ChesterFritz/Home-Lab-Project?style=flat-square&color=58a6ff)
+[![Links](https://img.shields.io/github/actions/workflow/status/ChesterFritz/Home-Lab-Project/links.yml?style=flat-square&label=links)](.github/workflows/links.yml)
 
 </div>
 
@@ -36,7 +37,7 @@ Notes on networking, Linux, and infrastructure as I learn them.
 | **OS** | Armbian — Debian Trixie Minimal |
 | **Storage** | MicroSD (SanDisk High Endurance) |
 
-📄 [Initial setup notes →](Orange%20Pi%20setup/README.MD)
+📄 [Initial setup notes →](configs/orange-pi/README.md)
 
 ## 🧰 Stack
 
@@ -45,17 +46,29 @@ Notes on networking, Linux, and infrastructure as I learn them.
 | 🐳 | **Docker** | Container runtime | host | [→](configs/docker/README.md) |
 | 🛡️ | **AdGuard Home** | Network-wide DNS filtering — ~83% block rate | container | [→](configs/adguard/README.md) |
 | 🔐 | **Tailscale** | VPN exit node, extends filtering to mobile | host | [→](configs/tailscale/README.md) |
-| 📊 | **Uptime Kuma** | Service + container health | container | [→](configs/UpTimeKuma/README.md) |
+| 📊 | **Uptime Kuma** | Service + container health | container | [→](configs/uptime-kuma/README.md) |
 | ⚡ | **Speedtest Tracker** | Scheduled internet speed tests | container | — |
-| 🚫 | **Fail2ban** | SSH brute-force protection | host | [→](Fail2ban/Fail2ban.MD) |
-| 🧱 | **UFW** | Host firewall, default-deny inbound | host | [→](ufw/README.md) |
-| 📝 | **LibreOffice** | Document conversion | host | [→](LibreOffice/LibreOffice.MD) |
+| 🚫 | **Fail2ban** | SSH brute-force protection | host | [→](configs/fail2ban/README.md) |
+| 🧱 | **UFW** | Host firewall, default-deny inbound | host | [→](configs/ufw/README.md) |
+| 📝 | **LibreOffice** | Document conversion | host | [→](configs/libreoffice/README.md) |
 
 > ⏳ **Next up** — Nginx reverse proxy · Dell OptiPlex 3070
 
+### 🔁 Rebuild from scratch
+
+Order matters — later steps assume earlier ones are in place.
+
+1. [Orange Pi setup](configs/orange-pi/README.md) — flash, first boot, SSH keys
+2. [Docker](configs/docker/README.md) — frees port 53, installs the runtime
+3. [AdGuard Home](configs/adguard/README.md) — restore from backup or start from [`AdGuardHome.example.yaml`](configs/adguard/AdGuardHome.example.yaml)
+4. [Tailscale](configs/tailscale/README.md) — exit node + tailnet DNS
+5. [Uptime Kuma](configs/uptime-kuma/README.md) — monitors for everything above
+6. [Fail2ban](configs/fail2ban/README.md) — SSH jail
+7. [UFW](configs/ufw/README.md) — firewall last, once you know every port in use
+
 <div align="center">
 
-![Status dashboard](image-1.png)
+![Status dashboard](assets/status-dashboard.png)
 
 </div>
 
