@@ -86,18 +86,24 @@ By default AdGuard forwards queries in plaintext, which your ISP can read and lo
 **Settings → DNS settings → Upstream DNS servers**
 
 ```text
+https://dns10.quad9.net/dns-query
 https://dns.cloudflare.com/dns-query
-https://dns.quad9.net/dns-query
 https://dns.google/dns-query
 ```
 
-Set **Load-balancing mode** to *Parallel requests* for speed, or *Load-balancing* to spread queries across providers.
+> `dns10.quad9.net` is Quad9's **unfiltered** endpoint. AdGuard does the
+> blocking, so a filtering upstream would only add a second, unmanaged
+> blocklist that you can't whitelist.
+
+Set **Upstream mode** to *Load-balancing* (used here) to spread queries across providers, or *Parallel requests* for lowest latency.
 
 **Bootstrap DNS servers** — needed to resolve the DoH hostnames themselves:
 
 ```text
-1.1.1.1
-9.9.9.9
+9.9.9.10
+149.112.112.10
+2620:fe::10
+2620:fe::fe:10
 ```
 
 Click **Test upstreams** — all three should return OK. Apply.
@@ -120,10 +126,10 @@ scp adguard-backup.tar.gz fritz@YOUR_DEVICE_IP:~/
 docker stop adguardhome
 
 # Extract backup
-tar -xzvf ~/adguard-backup.tar.gz -C /
+sudo tar -xzvf ~/adguard-backup.tar.gz -C /
 
 # Copy config into the Docker volume
-cp /opt/AdGuardHome/AdGuardHome.yaml /opt/adguardhome/conf/AdGuardHome.yaml
+sudo cp /opt/AdGuardHome/AdGuardHome.yaml /opt/adguardhome/conf/AdGuardHome.yaml
 
 # Restart container
 docker restart adguardhome
@@ -137,7 +143,7 @@ docker restart adguardhome
 sudo tar -czvf adguard-backup-$(date +%F).tar.gz /opt/adguardhome/conf/
 ```
 
-> ⚠️ **`AdGuardHome.yaml` contains your bcrypt admin password hash and client device names.** Do not commit it to a public repo. Add it to `.gitignore` and publish a sanitized `AdGuardHome.example.yaml` instead.
+> ⚠️ **`AdGuardHome.yaml` contains your bcrypt admin password hash and client device names.** Do not commit it to a public repo. This repo's [`.gitignore`](../../.gitignore) blocks it; the sanitized copy lives at [`AdGuardHome.example.yaml`](AdGuardHome.example.yaml).
 
 ---
 

@@ -1,72 +1,88 @@
-"""Draw a contribution line graph for the last 31 days as an SVG.
+"""Render assets/activity-graph.svg: this repo's commits per week.
 
-Runs in GitHub Actions. Reads GITHUB_TOKEN and GH_USER from the environment.
+Reads history from `git log`, so it needs no API token and no third-party
+packages. Run from the repo root (CI checks out with full history):
+
+    python3 .github/scripts/activity_graph.py
 """
 import datetime as dt
-import json
-import os
-import urllib.request
+import pathlib
+import subprocess
 
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
+OUT = pathlib.Path("assets/activity-graph.svg")
+REPO = "Home-Lab-Project"
 
-USER = os.environ["GH_USER"]
-TOKEN = os.environ["GITHUB_TOKEN"]
-DAYS = 31
-OUT = "assets/activity-graph.svg"
+W, H = 900, 260
+LEFT, RIGHT, TOP, BOTTOM = 45, 880, 45, 230
+BG, FG, MUTED, GRID, LINE = "#0d1117", "#c9d1d9", "#8b949e", "#21262d", "#58a6ff"
 
-QUERY = """
-query($login: String!) {
-  user(login: $login) {
-    contributionsCollection {
-      contributionCalendar {
-        weeks { contributionDays { date contributionCount } }
-      }
-    }
-  }
-}
-"""
 
-req = urllib.request.Request(
-    "https://api.github.com/graphql",
-    data=json.dumps({"query": QUERY, "variables": {"login": USER}}).encode(),
-    headers={"Authorization": f"bearer {TOKEN}", "Content-Type": "application/json"},
-)
-with urllib.request.urlopen(req) as resp:
-    payload = json.load(resp)
+def commit_dates():
+    out = subprocess.run(
+        ["git", "log", "--format=%ad", "--date=short"],
+        check=True, capture_output=True, text=True,
+    ).stdout
+    return [dt.date.fromisoformat(line) for line in out.split()]
 
-if "errors" in payload:
-    raise SystemExit(f"GraphQL error: {payload['errors']}")
 
-weeks = payload["data"]["user"]["contributionsCollection"]["contributionCalendar"]["weeks"]
-days = [d for w in weeks for d in w["contributionDays"]][-DAYS:]
-dates = [dt.date.fromisoformat(d["date"]) for d in days]
-counts = [d["contributionCount"] for d in days]
+def week_start(d):
+    return d - dt.timedelta(days=d.weekday())
 
-BG, FG, GRID, LINE = "#0d1117", "#c9d1d9", "#21262d", "#58a6ff"
 
-fig, ax = plt.subplots(figsize=(12, 3.6), dpi=100)
-fig.patch.set_facecolor(BG)
-ax.set_facecolor(BG)
+def main():
+    dates = commit_dates()
+    first = week_start(min(dates))
+    last = week_start(dt.date.today())
+    weeks = [first + dt.timedelta(weeks=i) for i in range((last - first).days // 7 + 1)]
+    counts = {w: 0 for w in weeks}
+    for d in dates:
+        counts[week_start(d)] += 1
+    values = [counts[w] for w in weeks]
 
-ax.plot(dates, counts, color=LINE, linewidth=2.2, marker="o", markersize=4)
-ax.fill_between(dates, counts, color=LINE, alpha=0.15)
+    step = 4
+    ymax = max(step, -(-max(values) // step) * step)
+    span = max(len(weeks) - 1, 1)
 
-ax.set_title(f"{USER} \u2014 contributions, last {DAYS} days", color=FG, fontsize=13, loc="left", pad=12)
-ax.set_ylabel("Contributions", color=FG)
-ax.set_ylim(bottom=0, top=max(max(counts), 1) * 1.15)
-ax.xaxis.set_major_locator(mdates.DayLocator(interval=3))
-ax.xaxis.set_major_formatter(mdates.DateFormatter("%d %b"))
-ax.tick_params(colors=FG, labelsize=9)
-ax.grid(axis="y", color=GRID, linewidth=1)
-for side in ("top", "right"):
-    ax.spines[side].set_visible(False)
-for side in ("left", "bottom"):
-    ax.spines[side].set_color(GRID)
+    def x(i):
+        return LEFT + (RIGHT - LEFT) * i / span
 
-fig.tight_layout()
-os.makedirs(os.path.dirname(OUT), exist_ok=True)
-fig.savefig(OUT, format="svg", facecolor=BG)
-print(f"Wrote {OUT}: {sum(counts)} contributions over {DAYS} days")
+    def y(v):
+        return BOTTOM - (BOTTOM - TOP) * v / ymax
+
+    svg = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" '
+        'font-family="Segoe UI,Helvetica,Arial,sans-serif">',
+        f'<rect width="{W}" height="{H}" rx="8" fill="{BG}"/>',
+        f'<text x="{LEFT}" y="26" fill="{FG}" font-size="15">'
+        f"{REPO} — commits per week ({len(dates)} total)</text>",
+    ]
+    for v in range(0, ymax + 1, ymax // 3 if ymax >= 3 else 1):
+        svg.append(f'<line x1="{LEFT}" x2="{RIGHT}" y1="{y(v):.1f}" y2="{y(v):.1f}" stroke="{GRID}"/>')
+        svg.append(f'<text x="{LEFT - 8}" y="{y(v) + 4:.1f}" fill="{MUTED}" '
+                   f'font-size="11" text-anchor="end">{v}</text>')
+
+    seen = set()
+    for i, w in enumerate(weeks):
+        key = (w.year, w.month)
+        if key not in seen:
+            seen.add(key)
+            svg.append(f'<text x="{x(i):.1f}" y="250" fill="{MUTED}" '
+                       f'font-size="11" text-anchor="middle">{w:%b}</text>')
+
+    pts = " ".join(f"{x(i):.1f},{y(v):.1f}" for i, v in enumerate(values))
+    svg.append(f'<polygon points="{x(0):.1f},{BOTTOM:.1f} {pts} {x(len(values) - 1):.1f},{BOTTOM:.1f}" '
+               f'fill="{LINE}" fill-opacity="0.15"/>')
+    svg.append(f'<polyline points="{pts}" fill="none" stroke="{LINE}" '
+               'stroke-width="2.5" stroke-linejoin="round"/>')
+    for i, v in enumerate(values):
+        if v:
+            svg.append(f'<circle cx="{x(i):.1f}" cy="{y(v):.1f}" r="3.5" fill="{LINE}"/>')
+    svg.append("</svg>")
+
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    OUT.write_text("\n".join(svg) + "\n")
+    print(f"Wrote {OUT}: {len(dates)} commits over {len(weeks)} weeks")
+
+
+if __name__ == "__main__":
+    main()
