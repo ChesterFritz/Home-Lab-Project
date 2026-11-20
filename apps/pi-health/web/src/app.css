@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+/* Design tokens. Components use them through Tailwind (bg-panel, text-ink-3, …),
+   and they swap for dark mode here, so no dark: variants are needed anywhere. */
+:root {
+  color-scheme: light;
+  --c-page: #eef1f4;
+  --c-panel: #ffffff;
+  --c-well: #f2f4f7;
+  --c-line: #dfe4e9;
+  --c-grid: #edf0f3;
+  --c-ink: #14181d;
+  --c-ink-2: #4b5561;
+  --c-ink-3: #6f7a86;
+  --c-brand: #f26b1d;
+  --c-s1: #2a78d6;
+  --c-s2: #eb6834;
+  --c-s1-fill: rgba(42, 120, 214, 0.12);
+  --c-good: #0ca30c;     --c-good-ink: #0a6b0a;     --c-good-tint: #e6f4e6;
+  --c-warning: #fab219;  --c-warning-ink: #855600;  --c-warning-tint: #fdf2d9;
+  --c-serious: #ec835a;  --c-serious-ink: #9c3d0e;  --c-serious-tint: #fce9e1;
+  --c-critical: #d03b3b; --c-critical-ink: #a82727; --c-critical-tint: #fae5e5;
+  --c-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.05);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --c-page: #0e1114; --c-panel: #171b20; --c-well: #1f242a; --c-line: #272d34; --c-grid: #1f242a;
+    --c-ink: #e9edf1; --c-ink-2: #aab3bd; --c-ink-3: #7f8994;
+    --c-s1: #3987e5; --c-s2: #d95926; --c-s1-fill: rgba(57, 135, 229, 0.16);
+    --c-good-ink: #4cc44c; --c-good-tint: #13261a;
+    --c-warning-ink: #fab219; --c-warning-tint: #2a2413;
+    --c-serious-ink: #ef9472; --c-serious-tint: #2c1c16;
+    --c-critical-ink: #f27c7c; --c-critical-tint: #2e1819;
+    --c-shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --c-page: #0e1114; --c-panel: #171b20; --c-well: #1f242a; --c-line: #272d34; --c-grid: #1f242a;
+  --c-ink: #e9edf1; --c-ink-2: #aab3bd; --c-ink-3: #7f8994;
+  --c-s1: #3987e5; --c-s2: #d95926; --c-s1-fill: rgba(57, 135, 229, 0.16);
+  --c-good-ink: #4cc44c; --c-good-tint: #13261a;
+  --c-warning-ink: #fab219; --c-warning-tint: #2a2413;
+  --c-serious-ink: #ef9472; --c-serious-tint: #2c1c16;
+  --c-critical-ink: #f27c7c; --c-critical-tint: #2e1819;
+  --c-shadow: none;
+}
+
+@theme inline {
+  --font-sans: "Archivo Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --color-page: var(--c-page);
+  --color-panel: var(--c-panel);
+  --color-well: var(--c-well);
+  --color-line: var(--c-line);
+  --color-ink: var(--c-ink);
+  --color-ink-2: var(--c-ink-2);
+  --color-ink-3: var(--c-ink-3);
+  --color-brand: var(--c-brand);
+  --color-s1: var(--c-s1);
+  --color-s2: var(--c-s2);
+  --color-good: var(--c-good);         --color-good-ink: var(--c-good-ink);         --color-good-tint: var(--c-good-tint);
+  --color-warning: var(--c-warning);   --color-warning-ink: var(--c-warning-ink);   --color-warning-tint: var(--c-warning-tint);
+  --color-serious: var(--c-serious);   --color-serious-ink: var(--c-serious-ink);   --color-serious-tint: var(--c-serious-tint);
+  --color-critical: var(--c-critical); --color-critical-ink: var(--c-critical-ink); --color-critical-tint: var(--c-critical-tint);
+  --shadow-card: var(--c-shadow);
+}
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    @apply bg-page text-ink font-sans antialiased;
+    font-variant-numeric: tabular-nums;
+    -webkit-tap-highlight-color: transparent;
+  }
+  :focus-visible { outline: 2px solid var(--c-brand); outline-offset: 2px; border-radius: 8px; }
+}
+
+@utility narrow { font-stretch: 72%; }
+@utility wide { font-stretch: 112%; }
+@utility card { @apply bg-panel border border-line rounded-2xl shadow-card; }
+
+/* uPlot: match the theme. */
+.ph-tip { position: absolute; top: 4px; z-index: 5; display: none; pointer-events: none; white-space: nowrap;
+  background: var(--c-panel); border: 1px solid var(--c-line); border-radius: 10px; padding: 7px 10px;
+  font-size: 12.5px; box-shadow: 0 8px 24px rgba(10, 14, 18, .16); color: var(--c-ink-2); }
+.ph-tip .h { color: var(--c-ink-3); margin-bottom: 3px; }
+.ph-tip .r { display: flex; align-items: center; gap: 7px; }
+.ph-tip .r i { width: 8px; height: 8px; border-radius: 50%; }
+.ph-tip .r b { margin-left: auto; padding-left: 14px; color: var(--c-ink); font-weight: 620; }
+.uplot { font-family: inherit; }
+.uplot .u-legend { font-size: 12.5px; color: var(--c-ink-2); text-align: left; padding: 6px 2px 0; }
+.uplot .u-legend .u-marker { width: 10px; height: 3px; border-radius: 2px; border: 0 !important; }
+.uplot .u-legend th { font-weight: 500; }
+.uplot .u-legend td { font-weight: 620; color: var(--c-ink); }
+.uplot .u-legend .u-series { padding: 0 10px 0 0; }
+.uplot .u-legend .u-series:first-child th { color: var(--c-ink-3); font-weight: 400; }
+.uplot .u-legend .u-series:first-child td { display: none; }
+.uplot .u-cursor-x { border-right: 1px solid var(--c-ink-3); }
+.uplot .u-cursor-y { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

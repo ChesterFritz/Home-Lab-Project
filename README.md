@@ -47,10 +47,11 @@ Notes on networking, Linux, and infrastructure as I learn them.
 | 🛡️ | **AdGuard Home** | Network-wide DNS filtering — ~83% block rate | container | [→](configs/adguard/README.md) |
 | 🔐 | **Tailscale** | VPN exit node, extends filtering to mobile | host | [→](configs/tailscale/README.md) |
 | 📊 | **Uptime Kuma** | Service + container health | container | [→](configs/uptime-kuma/README.md) |
-| ⚡ | **Speedtest Tracker** | Scheduled internet speed tests | container | — |
 | 🚫 | **Fail2ban** | SSH brute-force protection | host | [→](configs/fail2ban/README.md) |
 | 🧱 | **UFW** | Host firewall, default-deny inbound | host | [→](configs/ufw/README.md) |
 | 📝 | **LibreOffice** | Document conversion | host | [→](configs/libreoffice/README.md) |
+| 🩺 | **Pi Health** | Live dashboard, alerts, app launcher — plus two anime themes | host | [→](apps/pi-health/README.md) |
+| 💾 | **Backups** | Nightly archive, pulled off-board daily | host | [→](configs/backup/README.md) |
 
 > ⏳ **Next up** — Nginx reverse proxy · Dell OptiPlex 3070
 
@@ -65,6 +66,8 @@ Order matters — later steps assume earlier ones are in place.
 5. [Uptime Kuma](configs/uptime-kuma/README.md) — monitors for everything above
 6. [Fail2ban](configs/fail2ban/README.md) — SSH jail
 7. [UFW](configs/ufw/README.md) — firewall last, once you know every port in use
+8. [Backups](configs/backup/README.md) — nightly archive + off-board copy
+9. [Pi Health](apps/pi-health/README.md) — dashboard on port 8090 (needs its UFW rule)
 
 <div align="center">
 

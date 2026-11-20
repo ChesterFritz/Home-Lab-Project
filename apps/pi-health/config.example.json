@@ -1,0 +1,7 @@
+{
+  "port": 8090,
+  "lan_iface": "end0",
+  "containers": ["adguardhome", "uptime-kuma"],
+  "ntfy_url": "",
+  "thresholds": { "temp_warn": 70, "temp_crit": 80 }
+}

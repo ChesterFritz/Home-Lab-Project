@@ -6,3 +6,9 @@ AdGuardHome.yaml
 *-backup*.tar.gz
 
 .DS_Store
+
+# Pi Health: build output (deploy.sh rebuilds it), dependencies, caches
+apps/pi-health/static/
+node_modules/
+__pycache__/
+*.pyc

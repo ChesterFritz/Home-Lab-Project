@@ -1,0 +1,137 @@
+/* ==========================================================================
+   Anime themes. Kirino: pink tsundere manga. Kuroneko: gothic fallen angel.
+   Tokens first (charts and every Tailwind class pick these up), then the loud bits.
+   ========================================================================== */
+
+:root[data-theme="kirino"] {
+  color-scheme: light;
+  --c-page: #ffe4f0; --c-panel: #fffafc; --c-well: #ffe1ee; --c-line: #3a1030; --c-grid: #ffd6e8;
+  --c-ink: #3a1030; --c-ink-2: #7a2f5c; --c-ink-3: #a85a88;
+  --c-brand: #ff3f9b; --c-s1: #e8338a; --c-s2: #ff8a1f; --c-s1-fill: rgba(255, 63, 155, .16);
+  --c-good-ink: #0a7a2a; --c-good-tint: #e3f8e6;
+  --c-shadow: 5px 5px 0 #ff3f9b;
+}
+:root[data-theme="kuroneko"] {
+  color-scheme: dark;
+  --c-page: #0d0814; --c-panel: #18101f; --c-well: #24182f; --c-line: #4a2f66; --c-grid: #24182f;
+  --c-ink: #f1e9ff; --c-ink-2: #c8b3e6; --c-ink-3: #9179b0;
+  --c-brand: #a259ff; --c-s1: #b07cff; --c-s2: #ff4f7a; --c-s1-fill: rgba(176, 124, 255, .18);
+  --c-good-ink: #6fe08a; --c-good-tint: #142619;
+  --c-warning-ink: #ffcc4d; --c-warning-tint: #2a2210;
+  --c-serious-ink: #ff9b7a; --c-serious-tint: #2c1712;
+  --c-critical-ink: #ff7a9a; --c-critical-tint: #33101c;
+  --c-shadow: 0 0 0 1px rgba(162, 89, 255, .25), 0 0 22px rgba(162, 89, 255, .18);
+}
+
+/* ---------- page & type ---------- */
+:root[data-theme="kirino"] body {
+  font-family: "M PLUS Rounded 1c", "Archivo Variable", sans-serif; font-weight: 500;
+  background-color: #ffe4f0;
+  background-image:
+    radial-gradient(rgba(255, 63, 155, .22) 1.3px, transparent 1.6px),
+    radial-gradient(circle at 85% -10%, rgba(255, 170, 90, .45), transparent 45%),
+    radial-gradient(circle at 0% 100%, rgba(255, 120, 190, .35), transparent 50%),
+    linear-gradient(165deg, #fff0f7 0%, #ffe0ef 55%, #ffe8d9 100%);
+  background-size: 15px 15px, 100% 100%, 100% 100%, 100% 100%;
+  background-attachment: fixed;
+}
+:root[data-theme="kuroneko"] body {
+  font-family: "M PLUS Rounded 1c", "Archivo Variable", sans-serif; font-weight: 500;
+  background-color: #0d0814;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, #fff, transparent), radial-gradient(1px 1px at 70% 15%, #e6d3ff, transparent),
+    radial-gradient(1.5px 1.5px at 40% 80%, #fff, transparent), radial-gradient(1px 1px at 90% 60%, #c9a6ff, transparent),
+    radial-gradient(1px 1px at 10% 70%, #fff, transparent), radial-gradient(1.5px 1.5px at 55% 45%, #b07cff, transparent),
+    radial-gradient(circle at 88% 8%, rgba(255, 240, 200, .16) 0 60px, transparent 61px),
+    radial-gradient(ellipse at 50% -20%, rgba(162, 89, 255, .35), transparent 60%),
+    linear-gradient(180deg, #120a1c, #0d0814 60%, #1a0b16);
+  background-size: 260px 260px, 340px 340px, 300px 300px, 410px 410px, 380px 380px, 520px 520px, 100% 100%, 100% 100%, 100% 100%;
+  background-attachment: fixed;
+}
+
+/* numbers & headlines */
+:root[data-theme="kirino"] .narrow, :root[data-theme="kuroneko"] .narrow {
+  font-family: "Dela Gothic One", sans-serif; font-weight: 400; font-stretch: normal; letter-spacing: 0;
+}
+:root[data-theme="kirino"] .narrow { color: #3a1030; text-shadow: 2px 2px 0 #ffb3d6; }
+:root[data-theme="kuroneko"] .narrow { color: #f1e9ff; text-shadow: 0 0 12px rgba(176, 124, 255, .55); }
+
+.heading .jp { font-size: 12.5px; font-weight: 800; padding: 1px 8px; border-radius: 999px; }
+:root[data-theme="kirino"] .heading { font-family: "Dela Gothic One", sans-serif; font-weight: 400; font-size: 20px; color: #3a1030; text-shadow: 2px 2px 0 #ffb3d6; }
+:root[data-theme="kirino"] .heading .jp { font-family: "M PLUS Rounded 1c", sans-serif; background: #ff3f9b; color: #fff; text-shadow: none; transform: rotate(-3deg); display: inline-block; }
+:root[data-theme="kuroneko"] .heading { font-family: "Yusei Magic", sans-serif; font-weight: 400; font-size: 21px; letter-spacing: .02em; text-shadow: 0 0 14px rgba(162, 89, 255, .7); }
+:root[data-theme="kuroneko"] .heading .jp { font-family: "Yusei Magic", sans-serif; color: #e11d48; text-shadow: 0 0 8px rgba(225, 29, 72, .6); font-weight: 400; }
+
+.brand-jp { font-weight: 800; }
+:root[data-theme="kirino"] .brand-jp { color: #ff3f9b; }
+:root[data-theme="kuroneko"] .brand-jp { color: #b07cff; font-family: "Yusei Magic", sans-serif; font-weight: 400; }
+
+/* ---------- cards ---------- */
+:root[data-theme="kirino"] .card { border-width: 2.5px; border-color: #3a1030; border-radius: 20px; }
+:root[data-theme="kirino"] .vital:nth-child(even) { box-shadow: 5px 5px 0 #ff9a3c; }
+:root[data-theme="kirino"] a.card:hover { transform: translate(-2px, -2px) rotate(-.6deg); box-shadow: 8px 8px 0 #ff3f9b; }
+:root[data-theme="kuroneko"] .card { border-color: #4a2f66; border-radius: 6px 22px 6px 22px; background-image: linear-gradient(160deg, rgba(162, 89, 255, .08), transparent 40%); }
+:root[data-theme="kuroneko"] a.card:hover { border-color: #a259ff; box-shadow: 0 0 0 1px #a259ff, 0 0 28px rgba(162, 89, 255, .45); }
+
+/* sound-effect words and kaomoji on readouts */
+.sfx-word { position: absolute; right: 8px; top: 6px; z-index: 2; font: 400 22px/1 "Dela Gothic One", sans-serif; color: #fff;
+  -webkit-text-stroke: 2px #3a1030; paint-order: stroke fill; transform: rotate(8deg); animation: shake .35s steps(2) infinite; pointer-events: none; }
+:root[data-theme="kirino"] .sfx-word { text-shadow: 3px 3px 0 #ff3f9b; }
+:root[data-theme="kuroneko"] .sfx-word { color: #e11d48; -webkit-text-stroke-color: #000; text-shadow: 0 0 10px #e11d48; }
+.vital > div:nth-child(2) { padding-right: 64px; }
+.kao { position: absolute; right: 10px; top: 10px; font-size: 11.5px; font-weight: 700; color: var(--c-ink-3); white-space: nowrap; pointer-events: none; }
+@keyframes shake { 0% { transform: rotate(8deg) translate(0, 0); } 50% { transform: rotate(6deg) translate(1px, -1px); } }
+
+/* ---------- anime status card ---------- */
+.anime-status .speed { position: absolute; inset: -40%; opacity: .5; pointer-events: none;
+  background: repeating-conic-gradient(from 0deg at 22% 50%, rgba(255, 63, 155, .18) 0 2deg, transparent 2deg 7deg); animation: spin 60s linear infinite; }
+:root[data-theme="kuroneko"] .anime-status .speed { background: repeating-conic-gradient(from 0deg at 22% 50%, rgba(162, 89, 255, .16) 0 1.5deg, transparent 1.5deg 9deg); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.anime-status[data-sev="warning"] { background: var(--c-warning-tint); }
+.anime-status[data-sev="serious"], .anime-status[data-sev="critical"] { background: var(--c-critical-tint); }
+.anime-status[data-sev="offline"] { background: var(--c-well); }
+.anime-status .headline { margin: 0; line-height: 1.12; text-wrap: balance; font-size: clamp(24px, 6.4vw, 38px); }
+:root[data-theme="kirino"] .anime-status .headline { font-family: "Dela Gothic One", sans-serif; font-weight: 400; color: #fff;
+  -webkit-text-stroke: 2.5px #3a1030; paint-order: stroke fill; text-shadow: 4px 4px 0 #ff3f9b; letter-spacing: .01em; word-spacing: .22em; }
+:root[data-theme="kuroneko"] .anime-status .headline { font-family: "Yusei Magic", sans-serif; font-weight: 400; color: #f1e9ff; text-shadow: 0 0 18px rgba(162, 89, 255, .9), 0 0 2px #fff; }
+.anime-status .sub { margin: 8px 0 0; font-size: 14.5px; font-weight: 700; color: var(--c-ink-2); max-width: 60ch; }
+.anime-status .chip { font-size: 12.5px; font-weight: 700; padding: 4px 11px; border-radius: 999px; background: var(--c-panel); border: 2px solid var(--c-line); color: var(--c-ink-2); }
+.anime-status .chip b { color: var(--c-ink); font-weight: 800; }
+:root[data-theme="kirino"] .anime-status .chip { box-shadow: 2px 2px 0 #ff3f9b; }
+.anime-status .hint { margin: 12px 0 0; font-size: 12px; color: var(--c-ink-3); }
+.bubble { position: relative; max-width: 30ch; padding: 9px 14px; font-size: 13.5px; font-weight: 800; line-height: 1.35;
+  background: #fff; color: #3a1030; border: 2.5px solid #3a1030; border-radius: 18px; animation: bubble .35s cubic-bezier(.2,1.6,.4,1); }
+.bubble::after { content: ""; position: absolute; left: -11px; bottom: 12px; border: 7px solid transparent; border-right: 9px solid #3a1030; }
+@media (min-width: 640px) { .bubble::after { left: 18px; bottom: -14px; border: 7px solid transparent; border-top: 9px solid #3a1030; } }
+:root[data-theme="kuroneko"] .bubble { background: #1d1229; color: #f1e9ff; border-color: #a259ff; font-family: "Yusei Magic", sans-serif; font-weight: 400; box-shadow: 0 0 16px rgba(162, 89, 255, .45); }
+:root[data-theme="kuroneko"] .bubble::after { border-right-color: #a259ff; }
+@media (min-width: 640px) { :root[data-theme="kuroneko"] .bubble::after { border-right-color: transparent; border-top-color: #a259ff; } }
+@keyframes bubble { from { transform: scale(.6); opacity: 0; } }
+
+/* ---------- chrome ---------- */
+:root[data-theme="kirino"] header.sticky { background: rgba(255, 235, 245, .88); border-bottom: 2.5px solid #3a1030; }
+:root[data-theme="kuroneko"] header.sticky { background: rgba(13, 8, 20, .82); border-bottom-color: #4a2f66; }
+:root[data-theme="kirino"] nav.fixed { background: rgba(255, 245, 250, .94); border-top: 2.5px solid #3a1030; }
+:root[data-theme="kuroneko"] nav.fixed { background: rgba(18, 10, 28, .94); border-top-color: #4a2f66; }
+:root[data-theme="kirino"] .theme-btn, :root[data-theme="kirino"] .menu { border: 2px solid #3a1030; box-shadow: 3px 3px 0 #ff3f9b; }
+:root[data-theme="kirino"] [aria-pressed="true"] { background: #ff3f9b !important; color: #fff !important; }
+:root[data-theme="kuroneko"] [aria-pressed="true"] { background: #a259ff !important; color: #0d0814 !important; }
+
+/* uPlot tooltips inherit tokens; make them match */
+:root[data-theme="kirino"] .ph-tip { border: 2px solid #3a1030; box-shadow: 3px 3px 0 #ff3f9b; font-weight: 700; }
+:root[data-theme="kuroneko"] .ph-tip { border-color: #a259ff; box-shadow: 0 0 18px rgba(162, 89, 255, .4); }
+
+@media (prefers-reduced-motion: reduce) { .anime-status .speed, .sfx-word { animation: none; } }
+
+/* custom character picture on the status card */
+.char-pic { display: block; flex: none; width: 132px; height: 132px; padding: 0; border: 0; background: none; cursor: pointer;
+  animation: picbob 2.8s ease-in-out infinite; transform-origin: 50% 100%; }
+.char-pic img { width: 100%; height: 100%; object-fit: contain; object-position: bottom; filter: drop-shadow(3px 3px 0 var(--c-brand)); user-select: none; }
+:root[data-theme="kuroneko"] .char-pic img { filter: drop-shadow(0 0 12px rgba(162, 89, 255, .7)); }
+.char-pic.squish { animation: picsquish .45s cubic-bezier(.3,1.6,.5,1); }
+@keyframes picbob { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-5px) rotate(1.5deg); } }
+@keyframes picsquish { 30% { transform: scale(1.12, .9); } 60% { transform: scale(.95, 1.06); } }
+@media (min-width: 640px) { .char-pic { width: 160px; height: 160px; } }
+@media (prefers-reduced-motion: reduce) { .char-pic { animation: none; } }
+.art-dialog[open] { animation: bubble .3s cubic-bezier(.2,1.4,.4,1); }
+:root[data-theme="kirino"] .art-dialog { border: 2.5px solid #3a1030; box-shadow: 6px 6px 0 #ff3f9b; }
