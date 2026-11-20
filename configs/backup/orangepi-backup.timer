@@ -1,0 +1,8 @@
+[Unit]
+Description=Daily pull of Orange Pi backups
+[Timer]
+OnCalendar=*-*-* 12:00
+Persistent=true
+RandomizedDelaySec=10min
+[Install]
+WantedBy=timers.target
