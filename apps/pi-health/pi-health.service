@@ -1,0 +1,24 @@
+[Unit]
+Description=Pi Health dashboard
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=fritz
+Group=fritz
+SupplementaryGroups=docker
+ExecStart=/usr/bin/python3 /opt/pi-health/server.py
+Environment=PYTHONUNBUFFERED=1
+StateDirectory=pi-health
+Restart=always
+RestartSec=5
+MemoryMax=60M
+Nice=10
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,1 @@
+30 3 * * * root /usr/local/bin/pi-backup.sh 2>&1 | logger -t pi-backup

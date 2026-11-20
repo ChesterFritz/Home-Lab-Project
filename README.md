@@ -47,10 +47,11 @@ Notes on networking, Linux, and infrastructure as I learn them.
 | 🛡️ | **AdGuard Home** | Network-wide DNS filtering — ~83% block rate | container | [→](configs/adguard/README.md) |
 | 🔐 | **Tailscale** | VPN exit node, extends filtering to mobile | host | [→](configs/tailscale/README.md) |
 | 📊 | **Uptime Kuma** | Service + container health | container | [→](configs/uptime-kuma/README.md) |
-| ⚡ | **Speedtest Tracker** | Scheduled internet speed tests | container | — |
 | 🚫 | **Fail2ban** | SSH brute-force protection | host | [→](configs/fail2ban/README.md) |
 | 🧱 | **UFW** | Host firewall, default-deny inbound | host | [→](configs/ufw/README.md) |
 | 📝 | **LibreOffice** | Document conversion | host | [→](configs/libreoffice/README.md) |
+| 🩺 | **Pi Health** | Live dashboard, alerts, app launcher — plus two anime themes | host | [→](apps/pi-health/README.md) |
+| 💾 | **Backups** | Nightly archive, pulled off-board daily | host | [→](configs/backup/README.md) |
 
 > ⏳ **Next up** — Nginx reverse proxy · Dell OptiPlex 3070
 
@@ -65,6 +66,18 @@ Order matters — later steps assume earlier ones are in place.
 5. [Uptime Kuma](configs/uptime-kuma/README.md) — monitors for everything above
 6. [Fail2ban](configs/fail2ban/README.md) — SSH jail
 7. [UFW](configs/ufw/README.md) — firewall last, once you know every port in use
+8. [Backups](configs/backup/README.md) — nightly archive + off-board copy
+9. [Pi Health](apps/pi-health/README.md) — dashboard on port 8090 (needs its UFW rule)
+
+### 🩺 Pi Health
+
+My own live dashboard for the board. It shows CPU, temperature, GPU, estimated power, network, alerts, and one-tap links to every app. It has four themes, because why not. [Details →](apps/pi-health/README.md)
+
+| ☀️ Light | 🌙 Dark |
+|:-:|:-:|
+| ![Pi Health, Light theme](assets/screenshots/pi-health-light.png) | ![Pi Health, Dark theme](assets/screenshots/pi-health-dark.png) |
+| **♡ Kirino** — pink manga panels, sakura petals, tsundere wording | **✦ Kuroneko** — gothic black and purple, drifting feathers |
+| ![Pi Health, Kirino theme](assets/screenshots/pi-health-kirino.png) | ![Pi Health, Kuroneko theme](assets/screenshots/pi-health-kuroneko.png) |
 
 <div align="center">
 
