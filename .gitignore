@@ -12,3 +12,9 @@ apps/pi-health/static/
 node_modules/
 __pycache__/
 *.pyc
+
+# Personal character art: lives on the Pi only (uploaded via the dashboard)
+/Kirino.png
+/Kuroneko.png
+/*.mp3
+/shigure-ui-dance.gif

@@ -15,8 +15,8 @@
 
 {#snippet fx(kind)}
   {#if store.anime}
-    {@const word = sfxFor(kind, s)}
-    {#if word}<span class="sfx-word" aria-hidden="true">{word}</span>{:else}<span class="kao" aria-hidden="true">{KAOMOJI[kind]}</span>{/if}
+    {@const word = sfxFor(kind, s, store.anime)}
+    {#if word}<span class="sfx-word" aria-hidden="true">{word}</span>{:else}<span class="kao" aria-hidden="true">{KAOMOJI[store.anime][kind]}</span>{/if}
   {/if}
 {/snippet}
 

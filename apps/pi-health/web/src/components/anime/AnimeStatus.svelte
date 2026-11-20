@@ -1,6 +1,6 @@
 <script>
   import { store } from "../../lib/store.svelte.js";
-  import { COPY, fill, vars } from "../../lib/anime.js";
+  import { COPY, MASCOT, fill, vars } from "../../lib/anime.js";
   import { dur, ago } from "../../lib/format.js";
   import { sfx } from "../../lib/sfx.js";
   import Mascot from "./Mascot.svelte";
@@ -32,12 +32,25 @@
   });
 
   const pic = $derived(store.art(mood));
+  // Cut-outs (transparent corners) float free; full pictures get a manga-panel frame.
+  let panel = $state(false);
+  function measure(e) {
+    const img = e.currentTarget;
+    try {
+      const cv = document.createElement("canvas"); cv.width = cv.height = 16;
+      const g = cv.getContext("2d", { willReadFrequently: true });
+      g.drawImage(img, 0, 0, 16, 16);
+      const d = g.getImageData(0, 0, 16, 16).data;
+      const a = (x, y) => d[(y * 16 + x) * 4 + 3];
+      panel = [a(0, 0), a(15, 0), a(0, 15), a(15, 15)].every((v) => v > 240);
+    } catch { panel = true; }
+  }
   let squish = $state(false);
   function poke() {
     squish = false; requestAnimationFrame(() => (squish = true));
     quip = (quip + 1 + Math.floor(Math.random() * 3)) % copy.quips.length;
     pick++;
-    if (store.sfx) sfx.boop();
+    if (store.sfx) store.anime === "viking" ? sfx.clang() : sfx.boop();
     clearTimeout(timer); timer = setTimeout(() => (quip = -1), 7000);
   }
 </script>
@@ -45,14 +58,23 @@
 <section class="anime-status card relative overflow-hidden" data-sev={sev} aria-live="polite">
   <div class="speed" aria-hidden="true"></div>
   <div class="relative flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:gap-6 sm:p-6">
-    <div class="flex items-end gap-3 sm:block">
+    <div class="flex gap-3 sm:block {pic && panel ? 'flex-col' : 'items-end'}">
       {#if pic}
-        <button type="button" class="char-pic {squish ? 'squish' : ''}" onclick={poke} onanimationend={() => (squish = false)}
-          aria-label="Your character picture. Tap to hear what she thinks.">
-          <img src={pic} alt="" draggable="false" />
+        <button type="button" class="char-pic {panel ? 'panel' : ''} {squish ? 'squish' : ''}" onclick={poke} onanimationend={() => (squish = false)}
+          aria-label="Your character picture. Tap to hear a quip.">
+          <img src={pic} alt="" draggable="false" onload={measure} />
         </button>
       {:else}
-        <Mascot {mood} flavor={store.anime} size={112} onpoke={poke} />
+        <div class="mascot-wrap">
+          {#if store.anime === "viking"}
+            <svg class="rune-ring" viewBox="0 0 200 200" aria-hidden="true">
+              <defs><path id="rune-path" d="M100 100 m-78 0 a78 78 0 1 1 156 0 a78 78 0 1 1 -156 0" /></defs>
+              <circle cx="100" cy="100" r="92" stroke-width="1.5" /><circle cx="100" cy="100" r="64" stroke-width="1" stroke-dasharray="3 5" />
+              <text><textPath href="#rune-path">ᚠᚢᚦᚨᚱᚲᚷᚹ ᚺᚾᛁᛃᛇᛈᛉᛊ ᛏᛒᛖᛗᛚᛜᛞᛟ ᚠᚢᚦᚨᚱᚲᚷᚹ ᚺᚾᛁᛃᛇᛈ</textPath></text>
+            </svg>
+          {/if}
+          <Mascot {mood} flavor={store.anime} size={112} onpoke={poke} />
+        </div>
       {/if}
       {#if bubble}
         <div class="bubble sm:hidden">{bubble}</div>
@@ -78,7 +100,7 @@
           <span class="chip">Load <b>{c.load?.[0].toFixed(2)}</b></span>
         </div>
       {/if}
-      <p class="hint">Tap {pic ? "her" : store.anime === "kirino" ? "Pi-chan" : "the familiar"} to hear what {store.anime === "kirino" || pic ? "she" : "it"} thinks.
+      <p class="hint">Tap {pic ? (store.anime === "viking" ? "the picture" : "her") : MASCOT[store.anime]} to hear a quip.
         <button type="button" class="underline decoration-dotted underline-offset-2 hover:text-ink" onclick={() => (store.artOpen = true)}>{pic ? "Change pictures" : "Add your own character pictures"}</button></p>
     </div>
   </div>

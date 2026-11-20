@@ -11,6 +11,8 @@
     "@fontsource-variable/archivo": "^5.3.0",
     "@fontsource/dela-gothic-one": "^5.3.0",
     "@fontsource/m-plus-rounded-1c": "^5.3.0",
+    "@fontsource/new-rocker": "^5.3.0",
+    "@fontsource/noto-sans-runic": "^5.3.0",
     "@fontsource/yusei-magic": "^5.3.0",
     "@sveltejs/vite-plugin-svelte": "^6.2.4",
     "@tailwindcss/vite": "^4.3.5",
