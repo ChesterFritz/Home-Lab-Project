@@ -4,6 +4,12 @@ A tiny health dashboard for the Orange Pi PC. It's a single Python file with no 
 
 **Open it:** `http://192.168.18.28:8090` at home, or `http://100.81.251.12:8090` over Tailscale.
 
+| ☀️ Light | 🌙 Dark |
+|:-:|:-:|
+| ![Pi Health, Light theme](../../assets/screenshots/pi-health-light.png) | ![Pi Health, Dark theme](../../assets/screenshots/pi-health-dark.png) |
+| **♡ Kirino** — pink manga panels, sakura petals, tsundere wording | **✦ Kuroneko** — gothic black and purple, drifting feathers |
+| ![Pi Health, Kirino theme](../../assets/screenshots/pi-health-kirino.png) | ![Pi Health, Kuroneko theme](../../assets/screenshots/pi-health-kuroneko.png) |
+
 ---
 
 ## What it shows

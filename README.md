@@ -69,6 +69,16 @@ Order matters — later steps assume earlier ones are in place.
 8. [Backups](configs/backup/README.md) — nightly archive + off-board copy
 9. [Pi Health](apps/pi-health/README.md) — dashboard on port 8090 (needs its UFW rule)
 
+### 🩺 Pi Health
+
+My own live dashboard for the board. It shows CPU, temperature, GPU, estimated power, network, alerts, and one-tap links to every app. It has four themes, because why not. [Details →](apps/pi-health/README.md)
+
+| ☀️ Light | 🌙 Dark |
+|:-:|:-:|
+| ![Pi Health, Light theme](assets/screenshots/pi-health-light.png) | ![Pi Health, Dark theme](assets/screenshots/pi-health-dark.png) |
+| **♡ Kirino** — pink manga panels, sakura petals, tsundere wording | **✦ Kuroneko** — gothic black and purple, drifting feathers |
+| ![Pi Health, Kirino theme](assets/screenshots/pi-health-kirino.png) | ![Pi Health, Kuroneko theme](assets/screenshots/pi-health-kuroneko.png) |
+
 <div align="center">
 
 ![Status dashboard](assets/status-dashboard.png)
