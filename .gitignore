@@ -18,3 +18,10 @@ __pycache__/
 /Kuroneko.png
 /*.mp3
 /shigure-ui-dance.gif
+
+# Money Manager: Realbyte's UI files are fetched by fetch-assets.sh, never committed.
+# Financial data (money.sqlite and its .bak-* copies) lives on the Pi only.
+apps/money-manager/static/
+apps/money-manager/app/
+*.sqlite
+*.sqlite.bak-*

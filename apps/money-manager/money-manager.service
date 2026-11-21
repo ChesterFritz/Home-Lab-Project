@@ -1,0 +1,29 @@
+[Unit]
+Description=Money Manager (self-hosted PC Manager)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=fritz
+Group=fritz
+ExecStart=/usr/bin/python3 /opt/money-manager/server.py
+Environment=PYTHONUNBUFFERED=1
+Environment=MM_PORT=8888
+Environment=MM_DB=/var/lib/money-manager/money.sqlite
+Environment=MM_STATIC=/opt/money-manager/static
+Environment=MM_APP=/opt/money-manager/app
+# Optional login: put MM_PASSWORD=... in this file (chmod 600)
+EnvironmentFile=-/etc/money-manager.env
+StateDirectory=money-manager
+Restart=always
+RestartSec=5
+MemoryMax=60M
+Nice=10
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

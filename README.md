@@ -51,6 +51,7 @@ Notes on networking, Linux, and infrastructure as I learn them.
 | 🧱 | **UFW** | Host firewall, default-deny inbound | host | [→](configs/ufw/README.md) |
 | 📝 | **LibreOffice** | Document conversion | host | [→](configs/libreoffice/README.md) |
 | 🩺 | **Pi Health** | Live dashboard, alerts, app launcher — plus two anime themes | host | [→](apps/pi-health/README.md) |
+| 💸 | **Money Manager** | Self-hosted web UI for the iPhone budgeting app (reverse-engineered API) | host | [→](apps/money-manager/README.md) |
 | 💾 | **Backups** | Nightly archive, pulled off-board daily | host | [→](configs/backup/README.md) |
 
 > ⏳ **Next up** — Nginx reverse proxy · Dell OptiPlex 3070
