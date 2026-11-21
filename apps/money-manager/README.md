@@ -7,7 +7,7 @@ This folder runs it on the Orange Pi instead, all the time, from a copy of the p
 - **Pitaka** at `/`: a new phone-first UI (Svelte), described below.
 - **Classic** at `/classic/`: the phone's original ExtJS page, unchanged.
 
-**Open it:** `http://192.168.18.28:8888` at home, or `http://100.81.251.12:8888` over Tailscale.
+**Open it:** `http://pitaka.local` at home (or `http://192.168.18.28:8888`), or `http://100.81.251.12:8888` over Tailscale.
 
 ---
 
@@ -151,11 +151,14 @@ Pitaka asks you to sign in. Anyone who can reach the page can **create an accoun
   - `python3 /opt/money-manager/server.py --list-users`
   - `python3 /opt/money-manager/server.py --reset-password NAME` (prints a new random password)
 
-## Address: http://pitaka.home
+## Address: http://pitaka.local (and pitaka.home)
+
+- **mDNS:** `pitaka.local` is announced on the LAN by Avahi (`pitaka-mdns.service` runs `avahi-publish -a -R pitaka.local 192.168.18.28` as `fritz`; Avahi is limited to `end0`, and UFW allows 5353/udp from the LAN). iPhones, iPads and Macs resolve it without any DNS setup, so this is the address to use.
 
 - **DNS:** AdGuard Home (Docker on the Pi) answers `pitaka.home` and `adguard.home` with the Pi's IP. These entries are under Filters → DNS rewrites.
 - **Proxy:** a Caddy container (`caddy`, host network, config in `~/caddy/Caddyfile`) listens on port 80. It sends `pitaka.home` to this server on :8888, and `adguard.home` (or the bare IP) to AdGuard's admin, which now runs on :3000.
 - **Direct address:** `http://192.168.18.28:8888` still works.
+- **Why pitaka.home is unreliable:** the router hands out `1.1.1.1` as a secondary DNS server, and devices that ask it get no answer for `.home`. Removing that from the router's DHCP settings would fix it; `pitaka.local` sidesteps it.
 - **If pitaka.home doesn't load on an iPhone or Mac:** iCloud Private Relay or a custom DNS setting is bypassing AdGuard. Turn Private Relay off for your home Wi-Fi.
 
 ## Files

@@ -51,10 +51,12 @@ Notes on networking, Linux, and infrastructure as I learn them.
 | 🧱 | **UFW** | Host firewall, default-deny inbound | host | [→](configs/ufw/README.md) |
 | 📝 | **LibreOffice** | Document conversion | host | [→](configs/libreoffice/README.md) |
 | 🩺 | **Pi Health** | Live dashboard, alerts, app launcher — plus two anime themes | host | [→](apps/pi-health/README.md) |
-| 💸 | **Money Manager** | Self-hosted web UI for the iPhone budgeting app (reverse-engineered API) | host | [→](apps/money-manager/README.md) |
+| 💸 | **Pitaka** (Money Manager) | My own budgeting web app on top of the iPhone app's data — accounts, separate books, a secret anime theme | host | [→](apps/money-manager/README.md) |
+| 🔀 | **Caddy** | Reverse proxy on :80 — `pitaka.home` → :8888, `adguard.home` → :3000 | container | [→](apps/money-manager/README.md#address-httppitakalocal-and-pitakahome) |
+| 📡 | **Avahi (mDNS)** | Announces `pitaka.local` so Apple devices find it with zero DNS setup | host | [→](apps/money-manager/README.md#address-httppitakalocal-and-pitakahome) |
 | 💾 | **Backups** | Nightly archive, pulled off-board daily | host | [→](configs/backup/README.md) |
 
-> ⏳ **Next up** — Nginx reverse proxy · Dell OptiPlex 3070
+> ⏳ **Next up** — Dell OptiPlex 3070 · drop the router's secondary `1.1.1.1` DNS so `.home` names work everywhere · add Pitaka's books to the nightly backup
 
 ### 🔁 Rebuild from scratch
 
@@ -69,6 +71,7 @@ Order matters — later steps assume earlier ones are in place.
 7. [UFW](configs/ufw/README.md) — firewall last, once you know every port in use
 8. [Backups](configs/backup/README.md) — nightly archive + off-board copy
 9. [Pi Health](apps/pi-health/README.md) — dashboard on port 8090 (needs its UFW rule)
+10. [Pitaka](apps/money-manager/README.md) — `install.sh` on the Pi, then `deploy.sh` from the dev machine; Caddy, the AdGuard DNS rewrites and `pitaka-mdns.service` for the friendly address
 
 ### 🩺 Pi Health
 
@@ -79,6 +82,16 @@ My own live dashboard for the board. It shows CPU, temperature, GPU, estimated p
 | ![Pi Health, Light theme](assets/screenshots/pi-health-light.png) | ![Pi Health, Dark theme](assets/screenshots/pi-health-dark.png) |
 | **♡ Kirino** — pink manga panels, sakura petals, tsundere wording | **✦ Kuroneko** — gothic black and purple, drifting feathers |
 | ![Pi Health, Kirino theme](assets/screenshots/pi-health-kirino.png) | ![Pi Health, Kuroneko theme](assets/screenshots/pi-health-kuroneko.png) |
+
+### 💸 Pitaka
+
+Started as a way to use the iPhone **Money Manager** app's "PC Manager" page without the phone being awake. I reverse-engineered the phone's web API, rebuilt the backend as one dependency-free Python file on the Pi, then wrote a whole new front end for it. [Details →](apps/money-manager/README.md)
+
+- **Glass UI, desktop-first** — frosted panels over a background that follows the time of day; holds up on iPhone and iPad. A flow diagram of where the month's money went, 12-month trend, spending by category, net worth, per-account balance lines.
+- **Motion everywhere it means something** — sheets spring open, buttons ripple where you press, charts draw themselves in.
+- **Accounts** — open registration on the LAN; every account gets its **own private book** (separate SQLite file). scrypt passwords, hashed session tokens, a lockout after 5 wrong tries, profile photos.
+- **A real address** — `http://pitaka.local` via mDNS, plus `pitaka.home` through AdGuard + Caddy.
+- **🤫 A secret** — tap the logo 7 times. In light mode it turns into a black-and-white manga page (ink panels, screentone, ドン! sound effects); in dark mode it goes full **chuunibyou**: a turning magic circle, embers, glitching gold titles, pages renamed *Grimoire* and *Chronicle*, and the mascot becomes the Dark Coin Lord. Tap 7 more times to seal it away.
 
 <div align="center">
 
@@ -124,6 +137,11 @@ Fail2ban bans an IP for an hour after 5 failed SSH attempts in 10 minutes. The n
 | 6 | **Monitoring** | Deployed Uptime Kuma, mounted the Docker socket for container health checks. |
 | 7 | **SSH hardening** | Fail2ban with an SSH jail. Fixed a Tailscale MagicDNS vs system DNS conflict with `chattr +i` on `resolv.conf`. |
 | 8 | **Firewall** | UFW with default-deny inbound and LAN-only allows; forward policy set to ACCEPT so the exit node keeps working. |
+| 9 | **Pi Health** | Wrote my own live dashboard with alerts and an app launcher, then gave it anime themes. |
+| 10 | **Money Manager** | Reverse-engineered the iPhone app's PC Manager API and re-hosted it on the Pi from a copy of the phone's database. |
+| 11 | **Pitaka** | New Svelte UI over the same data: several redesigns, ending on desktop-first glass with motion. Added sign-in, registration and per-user books. |
+| 12 | **Friendly address** | Moved AdGuard's admin from :80 to :3000, put a Caddy container on :80, added DNS rewrites for `pitaka.home`, then mDNS (`pitaka.local`) when `.home` proved unreliable. |
+| 13 | **The secret** | Hidden anime theme behind 7 logo taps: manga in light mode, chuunibyou in dark mode. |
 
 ## 💥 Things that broke
 
@@ -133,6 +151,10 @@ Fail2ban bans an IP for an hour after 5 failed SSH attempts in 10 minutes. The n
 | `systemd-resolved` holding port 53 | Disabled it so AdGuard could bind |
 | Tailscale MagicDNS overwriting `/etc/resolv.conf` | `chattr +i` to lock the file |
 | Vendor Ubuntu 20.04 image unstable + EOL | Migrated to Armbian Debian Trixie |
+| `pitaka.home` loaded on some devices but not others | The router hands out `1.1.1.1` as secondary DNS, which knows nothing about `.home`. Added `pitaka.local` over mDNS instead |
+| Avahi static host entry: "Local name collision" | Published the name with `avahi-publish -a -R` from a systemd service, and limited Avahi to the wired interface |
+| That service failed on a D-Bus error under `DynamicUser=` | Run it as a real user (`User=fritz`) |
+| AdGuard switch health check failed and rolled back | The image has no `nslookup`; checked DNS from outside the container with a raw UDP query instead |
 
 ## 🎯 Goals
 

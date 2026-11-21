@@ -57,7 +57,7 @@
     </div>
   </section>
 
-  <div class="grid gap-4 lg:gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+  <div class="grid grid-cols-[minmax(0,1fr)] gap-4 lg:gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
     <section class="panel p-3 sm:p-4">
       <div class="flex items-center justify-between px-2 pb-2">
         <h2 class="title text-lg">Accounts</h2>
@@ -87,8 +87,9 @@
 
     {#if selected}
       {#key selected.id}
-        <div class="space-y-4 lg:space-y-5" in:fade={{ duration: 180 }}>
+        <div class="min-w-0 space-y-4 lg:space-y-5" in:fade={{ duration: 180 }}>
           <ChartCard
+            class="!h-auto"
             title={selected.name}
             note={selected.balance < 0 ? `You owe ${peso(-selected.balance)}` : "Balance over the last 26 weeks"}
             table={{ columns: ["Week of", "Balance"], rows: history.map((h) => [h.date, peso(h.balance)]) }}
