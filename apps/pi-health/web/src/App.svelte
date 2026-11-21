@@ -14,8 +14,8 @@
   import AnimeLayer from "./components/anime/AnimeLayer.svelte";
 
   onMount(() => store.start());
-  // Japanese display fonts are big; fetch them only once an anime theme is in use.
-  $effect(() => { if (store.anime) import("./lib/animeFonts.js"); });
+  // Display fonts are big; fetch them only once a character theme is in use.
+  $effect(() => { if (store.anime === "viking") import("./lib/vikingFonts.js"); else if (store.anime) import("./lib/animeFonts.js"); });
   $effect(() => {
     const n = store.state?.alerts?.length ?? 0;
     document.title = (n ? `(${n}) ` : "") + "Pi Health";

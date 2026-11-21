@@ -14,8 +14,9 @@ class Store {
   status = $state("connecting");   // connecting | live | offline
   lastOk = $state(0);
   now = $state(Date.now() / 1000); // Pi clock, ticks with each poll
-  theme = $state(load("pihealth-theme", ""));   // "" (system) | light | dark | kirino | kuroneko
+  theme = $state(load("pihealth-theme", ""));   // "" (system) | light | dark | kirino | kuroneko | viking
   sfx = $state(load("pihealth-sfx", "") === "on");
+  music = $state(load("pihealth-music", "on") === "on"); // theme song, when one is uploaded
   custom = $state.raw({});         // uploaded character pictures: { "kirino-main": "custom/…" }
   artOpen = $state(false);
   #fails = 0;
@@ -23,13 +24,14 @@ class Store {
 
   setRange(r) { this.range = r; save("pihealth-range", r); this.hist = null; this.loadHistory(); }
   setTab(t) { this.tab = t; window.scrollTo({ top: 0 }); }
-  get anime() { return this.theme === "kirino" || this.theme === "kuroneko" ? this.theme : null; }
+  // The character themes (anime + viking) share one set of components, keyed by this name.
+  get anime() { return ["kirino", "kuroneko", "viking"].includes(this.theme) ? this.theme : null; }
   setTheme(t) {
     this.theme = t;
     if (t) document.documentElement.dataset.theme = t;
     else delete document.documentElement.dataset.theme;
     save("pihealth-theme", t);
-    const color = { kirino: "#ffe4f0", kuroneko: "#120d1a", dark: "#0e1114", light: "#eef1f4" }[t];
+    const color = { kirino: "#ffe4f0", kuroneko: "#120d1a", viking: "#0b141b", dark: "#0e1114", light: "#eef1f4" }[t];
     document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
       if (!m.dataset.orig) m.dataset.orig = m.content;
       m.content = color ?? m.dataset.orig;
@@ -54,6 +56,7 @@ class Store {
     return this.custom[`${f}-${kind}`] ?? (fallback ? this.custom[`${f}-main`] : null) ?? null;
   }
   setSfx(on) { this.sfx = on; save("pihealth-sfx", on ? "on" : ""); }
+  setMusic(on) { this.music = on; save("pihealth-music", on ? "on" : "off"); }
 
   async loadHistory() {
     try {
@@ -93,7 +96,7 @@ class Store {
   start() {
     // ?theme=kirino (or kuroneko, light, dark) in the address picks a theme, handy for sharing.
     const q = new URLSearchParams(location.search).get("theme");
-    if (q !== null && ["", "light", "dark", "kirino", "kuroneko"].includes(q)) this.setTheme(q);
+    if (q !== null && ["", "light", "dark", "kirino", "kuroneko", "viking"].includes(q)) this.setTheme(q);
     else if (this.theme) this.setTheme(this.theme);
     const go = () => { clearInterval(this.#timer); this.poll(); this.#timer = setInterval(() => this.poll(), 2000); };
     document.addEventListener("visibilitychange", () => {

@@ -1,0 +1,25 @@
+{
+  "name": "pitaka-web",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource/bangers": "^5.3.0",
+    "@fontsource/cinzel": "^5.3.0",
+    "@fontsource/mochiy-pop-one": "^5.3.0",
+    "@sveltejs/vite-plugin-svelte": "^6.2.4",
+    "@tailwindcss/vite": "^4.3.5",
+    "d3-sankey": "^0.12.3",
+    "d3-scale": "^4.0.2",
+    "d3-shape": "^3.2.0",
+    "motion": "^12.23.0",
+    "svelte": "^5.58.0",
+    "tailwindcss": "^4.3.5",
+    "vite": "^7.3.8"
+  }
+}

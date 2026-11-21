@@ -1,0 +1,725 @@
+/* Pitaka v4, "glass": desktop first, then iPad, then iPhone. Frosted panels float over an
+   ambient color field that shifts with the time of day. Type is Apple's system face (SF Pro,
+   which carries ₱ and tabular figures) on Apple devices; Inter is the look-alike elsewhere. */
+@import "@fontsource-variable/inter";
+@import "@fontsource/mochiy-pop-one/400.css"; /* manga sound effects (katakana); loads only the glyphs used */
+@import "@fontsource/bangers/400.css"; /* manga lettering */
+@import "@fontsource/cinzel/700.css"; /* chuunibyou titles */
+@import "tailwindcss";
+
+/* Data colors validated (dataviz validator, all pairs) against the light and dark glass
+   surfaces; every check passes. in = blue, out = orange, transfer = green. */
+:root {
+  color-scheme: light;
+  --bg: #e9edf5;
+  --card: #f7f8fb; /* solid stand-in for glass (chart rings, sheet fallback) */
+  --glass: rgb(255 255 255 / 0.56);
+  --glass-strong: rgb(255 255 255 / 0.86);
+  --glass-edge: rgb(255 255 255 / 0.85);
+  --glass-shade: 0 1px 1px rgb(20 24 40 / 0.04), 0 12px 40px -12px rgb(20 24 40 / 0.18);
+  --sheen: rgb(255 255 255 / 0.55);
+  --inset: rgb(16 19 28 / 0.055);
+  --ink: #10131c;
+  --ink-2: #474e60;
+  --muted: #687084;
+  --line: rgb(16 19 28 / 0.08);
+  --line-strong: rgb(16 19 28 / 0.16);
+  --in: #2d6fe0;
+  --out: #dc671c;
+  --xfer: #14a37f;
+  --primary: #10131c;
+  --on-primary: #ffffff;
+  --danger: #c62f3b;
+  --focus: #2d6fe0;
+  --scrim: rgb(16 19 28 / 0.3);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #090b12;
+    --card: #1c1e28;
+    --glass: rgb(30 32 44 / 0.5);
+    --glass-strong: rgb(34 36 50 / 0.88);
+    --glass-edge: rgb(255 255 255 / 0.13);
+    --glass-shade: 0 1px 1px rgb(0 0 0 / 0.2), 0 16px 44px -14px rgb(0 0 0 / 0.6);
+    --sheen: rgb(255 255 255 / 0.07);
+    --inset: rgb(255 255 255 / 0.06);
+    --ink: #f2f4f8;
+    --ink-2: #b6bbc9;
+    --muted: #8c92a4;
+    --line: rgb(255 255 255 / 0.08);
+    --line-strong: rgb(255 255 255 / 0.16);
+    --in: #4a86ea;
+    --out: #d9762f;
+    --xfer: #21a585;
+    --primary: #f2f4f8;
+    --on-primary: #0b0d14;
+    --danger: #ff7d86;
+    --focus: #7fb0ff;
+    --scrim: rgb(0 0 0 / 0.5);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #090b12;
+  --card: #1c1e28;
+  --glass: rgb(30 32 44 / 0.5);
+  --glass-strong: rgb(34 36 50 / 0.88);
+  --glass-edge: rgb(255 255 255 / 0.13);
+  --glass-shade: 0 1px 1px rgb(0 0 0 / 0.2), 0 16px 44px -14px rgb(0 0 0 / 0.6);
+    --sheen: rgb(255 255 255 / 0.07);
+  --inset: rgb(255 255 255 / 0.06);
+  --ink: #f2f4f8;
+  --ink-2: #b6bbc9;
+  --muted: #8c92a4;
+  --line: rgb(255 255 255 / 0.08);
+  --line-strong: rgb(255 255 255 / 0.16);
+  --in: #4a86ea;
+  --out: #d9762f;
+  --xfer: #21a585;
+  --primary: #f2f4f8;
+  --on-primary: #0b0d14;
+  --danger: #ff7d86;
+  --focus: #7fb0ff;
+  --scrim: rgb(0 0 0 / 0.5);
+}
+
+@theme inline {
+  --color-paper: var(--bg);
+  --color-card: var(--card);
+  --color-inset: var(--inset);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-in: var(--in);
+  --color-out: var(--out);
+  --color-xfer: var(--xfer);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-danger: var(--danger);
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter Variable", system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    background: transparent; /* the ambient field sits behind; an opaque body would hide it */
+    min-height: 100dvh;
+  }
+  svg text,
+  input,
+  select,
+  textarea,
+  button {
+    font-family: inherit;
+  }
+  /* iOS zooms into inputs under 16px. */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+  .num,
+  .display {
+    font-variant-numeric: tabular-nums;
+  }
+  .display {
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+  }
+  .title {
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 10px;
+  }
+}
+
+@layer components {
+  /* The glass: translucent fill, heavy blur with boosted saturation so the color field glows
+     through, a bright top edge (specular), and a soft drop. */
+  .glass,
+  .panel {
+    background: var(--glass);
+    backdrop-filter: blur(28px) saturate(1.8);
+    -webkit-backdrop-filter: blur(28px) saturate(1.8);
+    box-shadow: inset 0 1px 0 var(--glass-edge), inset 0 0 0 1px var(--line), var(--glass-shade);
+  }
+  .panel {
+    border-radius: 24px;
+  }
+  /* Pointer sheen on the glass (Mac): App sets --mx/--my as the mouse moves over a panel. */
+  @media (hover: hover) and (pointer: fine) {
+    .panel,
+    .glass {
+      background-image: radial-gradient(360px circle at var(--mx, -999px) var(--my, -999px), var(--sheen), transparent 65%);
+    }
+  }
+  .lift {
+    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  }
+  @media (hover: hover) {
+    .lift:hover {
+      transform: translateY(-4px);
+      box-shadow: inset 0 1px 0 var(--glass-edge), inset 0 0 0 1px var(--line), 0 22px 50px -18px rgb(20 24 40 / 0.35);
+    }
+  }
+  .glass-strong {
+    background: var(--glass-strong);
+    backdrop-filter: blur(36px) saturate(1.8);
+    -webkit-backdrop-filter: blur(36px) saturate(1.8);
+    box-shadow: inset 0 1px 0 var(--glass-edge), inset 0 0 0 1px var(--line), var(--glass-shade);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-height: 40px;
+    padding: 0 1.05rem;
+    border-radius: 999px;
+    font-weight: 600;
+    transition: transform 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
+    touch-action: manipulation;
+  }
+  @media (pointer: coarse) {
+    .btn {
+      min-height: 46px;
+    }
+  }
+  .btn:active,
+  .chip:active {
+    transform: scale(0.94);
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+  .btn-primary:hover {
+    opacity: 0.88;
+  }
+  .btn-quiet {
+    background: var(--inset);
+    color: var(--ink);
+  }
+  .btn-quiet:hover {
+    background: var(--line-strong);
+  }
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    box-shadow: inset 0 0 0 1.5px currentColor;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 34px;
+    padding: 0 0.85rem;
+    border-radius: 999px;
+    background: var(--inset);
+    color: var(--ink-2);
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+    touch-action: manipulation;
+  }
+  @media (pointer: coarse) {
+    .chip {
+      min-height: 40px;
+    }
+  }
+  .chip:hover {
+    color: var(--ink);
+  }
+  .chip[aria-pressed="true"],
+  .chip[aria-checked="true"] {
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+  .field {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.55rem 0.9rem;
+    border-radius: 12px;
+    border: 1px solid var(--line-strong);
+    background: var(--inset);
+    color: var(--ink);
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--focus);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 25%, transparent);
+  }
+  /* Native selects: our own chevron, and solid option lists (a translucent field color made
+     the dark-mode dropdown unreadable). */
+  select.field {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 2.4rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.85rem center;
+    text-overflow: ellipsis;
+  }
+  select option,
+  select optgroup {
+    background-color: var(--card);
+    color: var(--ink);
+  }
+  label > .label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink-2);
+    margin-bottom: 0.3rem;
+  }
+}
+
+/* ================================================================== The secret anime style
+   Unlocked by tapping the logo 7 times. <html data-anime> picks the variant:
+   "manga"  (light) black ink on white paper: hard panel borders, narration-box titles,
+            screentone, focus lines, katakana sound effects. Deliberately monochrome; money in
+            is solid ink and money out is a mid tone, and every chart keeps its text labels.
+   "chuuni" (dark)  chuunibyou: obsidian panels with crimson glow and gold corner sigils, a
+            rotating magic circle, rising embers, glitching Cinzel titles. Data colors are the
+            validated dark set (re-checked on #140a1c: all pass).
+   Amounts always stay in the system face (none of the display faces has ₱). */
+
+/* ---------- manga (light) ---------- */
+:root[data-anime="manga"] {
+  color-scheme: light;
+  --bg: #ffffff;
+  --card: #ffffff;
+  --glass: #ffffff;
+  --glass-strong: #ffffff;
+  --glass-edge: #0a0a0a;
+  --glass-shade: none;
+  --inset: #efefef;
+  --ink: #0a0a0a;
+  --ink-2: #2b2b2b;
+  --muted: #5c5c5c;
+  --line: rgb(10 10 10 / 0.18);
+  --line-strong: #0a0a0a;
+  --in: #0a0a0a;
+  --out: #8a8a8a;
+  --xfer: #4a4a4a;
+  --primary: #0a0a0a;
+  --on-primary: #ffffff;
+  --danger: #b3001b;
+  --focus: #0a0a0a;
+  --sheen: transparent;
+  --scrim: rgb(255 255 255 / 0.6);
+  --tone: radial-gradient(#0a0a0a 0.9px, transparent 1.2px) 0 0 / 5px 5px;
+}
+[data-anime="manga"] body {
+  font-family: var(--font-sans);
+}
+[data-anime="manga"] .panel {
+  background: #fff;
+  border-radius: 3px;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 0 0 3px #0a0a0a;
+}
+/* hand-laid pages: panels sit a hair off-square */
+[data-anime="manga"] main .panel:nth-of-type(odd) {
+  rotate: -0.35deg;
+}
+[data-anime="manga"] main .panel:nth-of-type(even) {
+  rotate: 0.3deg;
+}
+[data-anime="manga"] .glass,
+[data-anime="manga"] .glass-strong,
+[data-anime="manga"] .sheet-bg {
+  background: #fff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 0 0 2.5px #0a0a0a;
+}
+/* Titles become narration boxes: white lettering on a black slab, slightly slanted. */
+[data-anime="manga"] .title {
+  display: inline-block;
+  font-family: "Bangers", var(--font-sans);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  font-size: 1.3em;
+  line-height: 1.1;
+  background: #0a0a0a;
+  color: #fff;
+  padding: 0.18em 0.55em 0.1em;
+  transform: skewX(-7deg);
+}
+[data-anime="manga"] .page-title {
+  position: relative;
+  font-family: "Bangers", var(--font-sans);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  font-size: 3.1rem !important;
+  -webkit-text-stroke: 1.5px #0a0a0a;
+  color: #fff;
+  text-shadow: 4px 4px 0 #0a0a0a;
+}
+/* a big outlined sound effect behind the page title */
+[data-anime="manga"] .page-title::after {
+  content: "ドン";
+  position: absolute;
+  left: calc(100% + 0.25em);
+  top: -0.2em;
+  font-family: "Mochiy Pop One", sans-serif;
+  font-size: 0.62em;
+  color: #0a0a0a;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  rotate: 12deg;
+  pointer-events: none;
+}
+/* Summary cards: focus lines rushing at the number, screentone in the corner. */
+[data-anime="manga"] .lift {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+[data-anime="manga"] .lift::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  z-index: -1;
+  background: repeating-conic-gradient(from 0deg at 50% 50%, #0a0a0a 0deg 0.7deg, transparent 0.7deg 5deg);
+  mask: radial-gradient(ellipse 34% 30% at 50% 50%, transparent 55%, #000 100%);
+  -webkit-mask: radial-gradient(ellipse 34% 30% at 50% 50%, transparent 55%, #000 100%);
+  opacity: 0.16;
+  transition: opacity 0.3s, transform 0.6s;
+}
+[data-anime="manga"] .lift::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 55%;
+  height: 60%;
+  z-index: -1;
+  background: var(--tone);
+  mask: radial-gradient(ellipse at 100% 100%, #000, transparent 70%);
+  -webkit-mask: radial-gradient(ellipse at 100% 100%, #000, transparent 70%);
+  opacity: 0.35;
+}
+@media (hover: hover) {
+  [data-anime="manga"] .lift:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 0 0 0 3px #0a0a0a, 6px 6px 0 3px #0a0a0a;
+  }
+  [data-anime="manga"] .lift:hover::before {
+    opacity: 0.32;
+    transform: scale(1.06);
+  }
+}
+[data-anime="manga"] .btn-quiet,
+[data-anime="manga"] .chip {
+  background: #fff;
+  box-shadow: inset 0 0 0 2px #0a0a0a;
+  color: #0a0a0a;
+}
+[data-anime="manga"] .chip[aria-pressed="true"],
+[data-anime="manga"] .chip[aria-checked="true"] {
+  background: #0a0a0a;
+  color: #fff;
+}
+[data-anime="manga"] .field {
+  background: #fff;
+  border: 2px solid #0a0a0a;
+  border-radius: 4px;
+}
+[data-anime="manga"] aside img,
+[data-anime="manga"] header img,
+[data-anime="manga"] .mascot {
+  filter: grayscale(1) contrast(1.35);
+}
+
+/* ---------- chuunibyou (dark) ---------- */
+:root[data-anime="chuuni"] {
+  color-scheme: dark;
+  --bg: #07040c;
+  --card: #140a1c;
+  --glass: rgb(22 10 30 / 0.74);
+  --glass-strong: rgb(20 9 28 / 0.94);
+  --glass-edge: rgb(232 196 106 / 0.16);
+  --glass-shade: 0 0 36px -10px rgb(212 42 72 / 0.5);
+  --inset: rgb(212 42 72 / 0.1);
+  --ink: #f3e8ff;
+  --ink-2: #cdb8e0;
+  --muted: #a891c0;
+  --line: rgb(212 42 72 / 0.2);
+  --line-strong: rgb(212 42 72 / 0.45);
+  --in: #4a86ea;
+  --out: #d9762f;
+  --xfer: #21a585;
+  --primary: #d42a48;
+  --on-primary: #ffffff;
+  --danger: #ff6b81;
+  --focus: #e8c46a;
+  --sheen: rgb(212 42 72 / 0.14);
+  --scrim: rgb(0 0 0 / 0.65);
+  --gold: #e8c46a;
+  --crimson: #d42a48;
+}
+[data-anime="chuuni"] .panel {
+  position: relative;
+  border-radius: 4px;
+  background-color: rgb(20 9 28 / 0.78);
+  box-shadow: 0 0 0 1px rgb(212 42 72 / 0.5), inset 0 1px 0 var(--glass-edge), 0 0 40px -12px rgb(212 42 72 / 0.55);
+}
+/* gold sigil brackets in two corners of every panel */
+[data-anime="chuuni"] .panel::before,
+[data-anime="chuuni"] .panel::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  pointer-events: none;
+  border-color: var(--gold);
+  filter: drop-shadow(0 0 4px rgb(232 196 106 / 0.7));
+}
+[data-anime="chuuni"] .panel::before {
+  top: -3px;
+  left: -3px;
+  border-top: 2px solid var(--gold);
+  border-left: 2px solid var(--gold);
+}
+[data-anime="chuuni"] .panel::after {
+  right: -3px;
+  bottom: -3px;
+  border-bottom: 2px solid var(--gold);
+  border-right: 2px solid var(--gold);
+}
+@media (hover: hover) {
+  [data-anime="chuuni"] .lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0 0 1px rgb(232 196 106 / 0.7), 0 0 60px -6px rgb(212 42 72 / 0.85);
+  }
+}
+[data-anime="chuuni"] .glass,
+[data-anime="chuuni"] .glass-strong {
+  box-shadow: 0 0 0 1px rgb(212 42 72 / 0.45), var(--glass-shade);
+}
+[data-anime="chuuni"] .title,
+[data-anime="chuuni"] .page-title {
+  font-family: "Cinzel", Georgia, serif;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+[data-anime="chuuni"] .title {
+  color: #f6e7c2;
+  text-shadow: 0 0 14px rgb(212 42 72 / 0.7);
+}
+[data-anime="chuuni"] .page-title {
+  background: linear-gradient(180deg, #fff3cf 10%, #e8c46a 55%, #d42a48 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 12px rgb(212 42 72 / 0.6));
+  animation: glitch 6s steps(1) infinite;
+}
+@keyframes glitch {
+  0%, 93%, 100% { transform: none; filter: drop-shadow(0 0 12px rgb(212 42 72 / 0.6)); }
+  94% { transform: translate(-3px, 1px) skewX(-8deg); filter: drop-shadow(3px 0 0 #00e5ff) drop-shadow(-3px 0 0 #ff2050); }
+  95% { transform: translate(3px, -1px); filter: drop-shadow(-4px 0 0 #00e5ff) drop-shadow(4px 0 0 #ff2050); }
+  96% { transform: translate(-1px, 0) skewX(6deg); }
+  97% { transform: none; filter: drop-shadow(2px 0 0 #00e5ff) drop-shadow(-2px 0 0 #ff2050); }
+}
+[data-anime="chuuni"] .btn-primary {
+  background: linear-gradient(180deg, #e8395a, #a3132f);
+  box-shadow: 0 0 0 1px rgb(232 196 106 / 0.55), 0 0 22px -4px rgb(212 42 72 / 0.9);
+  letter-spacing: 0.02em;
+}
+[data-anime="chuuni"] .btn-quiet,
+[data-anime="chuuni"] .chip {
+  box-shadow: inset 0 0 0 1px rgb(212 42 72 / 0.45);
+}
+[data-anime="chuuni"] .field:focus {
+  box-shadow: 0 0 0 3px rgb(232 196 106 / 0.3), 0 0 18px rgb(212 42 72 / 0.4);
+}
+
+/* ---------- shared anime motion ---------- */
+@keyframes speed {
+  0% { opacity: 0; transform: scale(1.25); }
+  25% { opacity: 0.6; }
+  100% { opacity: 0; transform: scale(1); }
+}
+.speedlines {
+  position: fixed;
+  inset: -20vmax;
+  z-index: 5;
+  pointer-events: none;
+  background: repeating-conic-gradient(from 0deg at 50% 50%, #0a0a0a 0deg 0.9deg, transparent 0.9deg 6deg);
+  mask: radial-gradient(circle at center, transparent 30%, #000 62%);
+  -webkit-mask: radial-gradient(circle at center, transparent 30%, #000 62%);
+  animation: speed 0.5s ease-out forwards;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin-back { to { transform: rotate(-360deg); } }
+@keyframes ember {
+  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translate3d(var(--dx), -105vh, 0) scale(0.3); opacity: 0; }
+}
+@keyframes pulse-eye {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; filter: drop-shadow(0 0 5px #ff2050); }
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+@keyframes hop {
+  0% { transform: translateY(0) scale(1, 1); }
+  20% { transform: translateY(2px) scale(1.12, 0.86); }
+  50% { transform: translateY(-22px) scale(0.92, 1.1) rotate(-8deg); }
+  80% { transform: translateY(0) scale(1.08, 0.92); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+@keyframes ear-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(-14deg); }
+  60% { transform: rotate(10deg); }
+}
+@keyframes bubble-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.85); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ember, .speedlines, .magic-spin { animation: none !important; display: none; }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* The active-nav pill glides between items with a little overshoot. */
+.nav-pill {
+  transition: top 0.5s cubic-bezier(0.34, 1.4, 0.64, 1), left 0.5s cubic-bezier(0.34, 1.4, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.4, 0.64, 1), height 0.3s ease;
+}
+.nav-item[aria-current="page"] svg {
+  animation: pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes pop {
+  0% { transform: scale(0.7); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.add-btn svg {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.add-btn:hover svg {
+  transform: rotate(90deg);
+}
+/* While the form is open, the + turns into a × (and turns back when it closes). */
+.add-btn.open svg {
+  transform: rotate(135deg);
+}
+.add-btn {
+  position: relative;
+}
+/* Forms need calm, readable glass: mostly solid, still frosted at the edges. */
+.sheet-bg {
+  background: color-mix(in srgb, var(--card) 93%, transparent);
+}
+.btn:not(.add-btn),
+.chip {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.ink {
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.22;
+  pointer-events: none;
+  transform: scale(0);
+  animation: ink 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes ink {
+  to { transform: scale(1); opacity: 0; }
+}
+/* Tap feedback: a ring bursts out of the button, then a quick squash-and-spring. */
+.add-btn .ripple {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 0 0 0 var(--primary);
+  animation: ripple 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes ripple {
+  from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 45%, transparent); }
+  to { box-shadow: 0 0 0 22px color-mix(in srgb, var(--primary) 0%, transparent); }
+}
+/* Scroll reveal: below-the-fold panels rise into place the first time they're seen. */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(26px) scale(0.985);
+  transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-reveal].shown {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes avatar-in {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+.scroll-row {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.scroll-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* The ambient field: soft color blobs drifting slowly behind the glass. */
+@keyframes drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(4%, -3%, 0) scale(1.08); }
+  100% { transform: translate3d(-3%, 4%, 0) scale(0.96); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

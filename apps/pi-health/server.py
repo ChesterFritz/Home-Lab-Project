@@ -725,14 +725,17 @@ MIME = {".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "
 
 
 # --------------------------------------------------------------------------- custom pictures
-# Pictures the owner uploads for the anime themes. They live only on the Pi (state dir),
-# never in the app or the repo. Fixed slot names, image types only, size-capped.
+# Pictures (and a theme song) the owner uploads for the anime themes. They live only on the Pi
+# (state dir), never in the app or the repo. Fixed slot names, sniffed file types, size-capped.
 CUSTOM_DIR = os.path.join(STATE_DIR, "custom")
-CUSTOM_FLAVORS = ("kirino", "kuroneko")
-CUSTOM_KINDS = ("main", "happy", "worried", "angry", "dizzy", "sprite", "bg")
+CUSTOM_FLAVORS = ("kirino", "kuroneko", "viking")
+CUSTOM_KINDS = ("main", "happy", "worried", "angry", "dizzy", "sprite", "bg", "music")
 CUSTOM_SLOTS = {f"{f}-{k}" for f in CUSTOM_FLAVORS for k in CUSTOM_KINDS}
 CUSTOM_MAX = 8 * 1024 * 1024
+MUSIC_MAX = 20 * 1024 * 1024
 IMAGE_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".webp": "image/webp", ".gif": "image/gif"}
+AUDIO_TYPES = {".mp3": "audio/mpeg"}
+MEDIA_TYPES = {**IMAGE_TYPES, **AUDIO_TYPES}
 
 
 def sniff_image(data):
@@ -747,8 +750,14 @@ def sniff_image(data):
     return None
 
 
+def sniff_audio(data):
+    if data[:3] == b"ID3" or (len(data) > 1 and data[0] == 0xFF and data[1] & 0xE0 == 0xE0):
+        return ".mp3"
+    return None
+
+
 def custom_find(slot):
-    for ext in IMAGE_TYPES:
+    for ext in MEDIA_TYPES:
         p = os.path.join(CUSTOM_DIR, slot + ext)
         if os.path.isfile(p):
             return p
@@ -777,7 +786,7 @@ class Handler(BaseHTTPRequestHandler):
             body = body.encode()
         zipped = False
         if len(body) > 1024 and "gzip" in self.headers.get("Accept-Encoding", "") and \
-                not ctype.startswith(("font/", "image/png")):
+                not ctype.startswith(("font/", "image/", "audio/")):
             if gz_key and gz_key in GZ_CACHE:
                 body = GZ_CACHE[gz_key]
             else:
@@ -815,10 +824,10 @@ class Handler(BaseHTTPRequestHandler):
             name = os.path.basename(u.path)
             slot, ext = os.path.splitext(name)
             p = os.path.join(CUSTOM_DIR, name)
-            if slot not in CUSTOM_SLOTS or ext not in IMAGE_TYPES or not os.path.isfile(p):
+            if slot not in CUSTOM_SLOTS or ext not in MEDIA_TYPES or not os.path.isfile(p):
                 return self._send(404, {"error": "not found"})
             with open(p, "rb") as f:
-                return self._send(200, f.read(), IMAGE_TYPES[ext], "public, max-age=31536000, immutable")
+                return self._send(200, f.read(), MEDIA_TYPES[ext], "public, max-age=31536000, immutable")
         name = "index.html" if u.path in ("/", "") else u.path.lstrip("/")
         full = os.path.realpath(os.path.join(STATIC, name))
         if not full.startswith(os.path.realpath(STATIC) + os.sep) or not os.path.isfile(full):
@@ -850,12 +859,13 @@ class Handler(BaseHTTPRequestHandler):
             length = int(self.headers.get("Content-Length", "0"))
         except ValueError:
             length = 0
-        if length <= 0 or length > CUSTOM_MAX:
-            return self._send(413, {"error": "Pictures must be under 8 MB"})
+        music = slot.endswith("-music")
+        if length <= 0 or length > (MUSIC_MAX if music else CUSTOM_MAX):
+            return self._send(413, {"error": "Music must be under 20 MB" if music else "Pictures must be under 8 MB"})
         data = self.rfile.read(length)
-        ext = sniff_image(data)
+        ext = sniff_audio(data) if music else sniff_image(data)
         if not ext:
-            return self._send(415, {"error": "Use a PNG, JPEG, WebP or GIF picture"})
+            return self._send(415, {"error": "Use an MP3 file" if music else "Use a PNG, JPEG, WebP or GIF picture"})
         os.makedirs(CUSTOM_DIR, exist_ok=True)
         old = custom_find(slot)
         tmp = os.path.join(CUSTOM_DIR, f".{slot}{ext}.tmp")

@@ -1,4 +1,4 @@
-// Text for the two anime themes. {placeholders} are filled from live readings.
+// Text for the character themes (Kirino, Kuroneko, Viking). {placeholders} are filled from live readings.
 import { dur } from "./format.js";
 
 export const COPY = {
@@ -58,7 +58,44 @@ export const COPY = {
     tabs: { overview: "Sanctum", charts: "Omens", services: "Wards", alerts: "Curses" },
     secretSays: "You know the forbidden word… Interesting.",
   },
+  viking: {
+    brand: "ᛟᚱᚨᚾᚷᛖ ᛈᛁ · ᛞᚱᚨᚲᛟᚾ ᚺᚨᛚᛚ",
+    brandEn: "Hall of the Iron Dragon",
+    good: ["The longhouse stands. All is well!", "The fjord is calm and the dragons sleep.", "The ravens report: all systems normal.", "Shields up, mead out. Nothing to fight today!"],
+    goodSub: "{checks} watchmen reported in. The last patrol rode out {ago}.",
+    alert: "To arms! {title}!",
+    alertSub: "{detail}. Raiders were sighted {since} ago. Sound the horn!",
+    offline: "The bridge to the island has fallen!",
+    offlineSub: "Fog hides the Pi from view. Check its power, or sail back to the home network. The horn will sound when it returns.",
+    connecting: "Lighting the signal fires…",
+    quips: [
+      "Rawr! My dragonfire runs at {temp}°C.",
+      "The forge burns at {cpu}% today. Pump the bellows!",
+      "{mem}% of the treasure hoard is full. Need a bigger cave.",
+      "The ravens carried your DNS answer in {dns} ms.",
+      "{uptime} without a nap. Even dragons need sleep, you know.",
+      "I'm not a lizard. I'm a FEARSOME beast. …Scratch behind my horns?",
+      "No ads shall pass the shieldwall!",
+      "Skål! To another day of uptime!",
+      "I tried riding a dragon once. Then I remembered I AM the dragon.",
+      "The Uptime Kuma lookout never sleeps. Neither do I. Mostly.",
+    ],
+    worried: ["Smoke on the horizon…", "The sea grows restless…"],
+    heads: { apps: ["Apps", "ᚨᚱᛗᛟᚱᚤ · Armory"], history: ["History", "ᛋᚨᚷᚨ · Saga"], services: ["Services", "ᛋᚺᛁᛖᛚᛞᚹᚨᛚᛚ"], alerts: ["Alert history", "ᚺᛟᚱᚾ · War horn"] },
+    burst: "TO ARMS!!",
+    ticker: ["ᛟᚱᚨᚾᚷᛖ ᛈᛁ", "Dragon riders on watch", "ᚠᛁᛟᚱᛞ ᛁᛋ ᚲᚨᛚᛗ", "The fjord is calm", "SKÅL!"],
+    tabs: { overview: "Longhouse", charts: "Sagas", services: "Shieldwall", alerts: "War horn" },
+    secretSays: "The mead hall roars! A feast for the dragon riders!",
+  },
 };
+
+// Per-theme bits used across components.
+export const GLYPH = { kirino: "♡", kuroneko: "✦", viking: "⚔" };
+export const NAME = { kirino: "Kirino", kuroneko: "Kuroneko", viking: "Viking" };
+export const MASCOT = { kirino: "Pi-chan", kuroneko: "the familiar", viking: "the dragon" };
+export const SECRET = { kirino: "kawaii", kuroneko: "kuroneko", viking: "valhalla" };
+export const SECRET_BURST = { kirino: "かわいい!!", kuroneko: "闇!!", viking: "SKÅL!!" };
+export const SPARKS = { kirino: ["♡", "✦", "★", "✧"], kuroneko: ["✦", "☾", "✧", "†"], viking: ["ᚠ", "ᚱ", "ᛟ", "✦", "ᛉ"] };
 
 export function fill(text, vars) {
   return text.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? "?"));
@@ -73,8 +110,10 @@ export function vars(state, now) {
 }
 
 // Big sound-effect words that appear on readouts when values climb.
-export function sfxFor(kind, s) {
+const VIKING_SFX = { cpu: "CLANG!", temp: "FWOOSH!", gpu: "WHIRR!", power: "THOOM!", net: "WHOOSH!", mem: "HEAVE!" };
+export function sfxFor(kind, s, flavor) {
   if (!s) return null;
+  if (flavor === "viking") return sfxFor(kind, s) && VIKING_SFX[kind];
   if (kind === "cpu" && s.cpu >= 60) return "ドドド";
   if (kind === "temp" && s.temp >= 65) return "ゴゴゴ";
   if (kind === "gpu" && s.gpu >= 50) return "ギュイン";
@@ -84,6 +123,8 @@ export function sfxFor(kind, s) {
   return null;
 }
 
+const ANIME_KAO = { cpu: "(￣▽￣)ノ", temp: "(〃▽〃)", gpu: "( ˘ω˘ )", power: "ϟ(｀ω´)", net: "┌(>_<)┘", mem: "(｡•̀ᴗ-)✧" };
 export const KAOMOJI = {
-  cpu: "(￣▽￣)ノ", temp: "(〃▽〃)", gpu: "( ˘ω˘ )", power: "ϟ(｀ω´)", net: "┌(>_<)┘", mem: "(｡•̀ᴗ-)✧",
+  kirino: ANIME_KAO, kuroneko: ANIME_KAO,
+  viking: { cpu: "ᚦ forge", temp: "ᚲ hearth", gpu: "ᛃ gears", power: "ᛏ thunder", net: "ᚱ ravens", mem: "ᚠ hoard" },
 };
